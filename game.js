@@ -5,6 +5,7 @@ class Game{
         this.score = score
         this.money = money
         this.level = level
+        this.break = false
         this.start_time = Date.now()
         this.time = 0
         this.board = new Board()
@@ -14,7 +15,30 @@ class Game{
 
     init(){
         this.board.init();
-        this.init_enemy();
+        this.break = true
+    }
+
+    start_round(){
+        if(this.break){
+            this.break = false
+            this.init_enemy();
+        }
+    }
+
+    is_break(){
+        return this.break
+    }
+
+    pause(){
+        this.break = true
+    }
+
+    resume(){
+        this.break = false
+    }
+    
+    get_level(){
+        return this.level
     }
 
     is_game_over(){
@@ -32,6 +56,7 @@ class Game{
             this.enemies.push(new Enemy(this.level*50))
         }
     }
+
     update_time(){
         this.time = Date.now()-this.start_time
     }
@@ -41,6 +66,8 @@ class Game{
         if(this.money>=10){
             this.money-=10
             this.board.add_tower(i,j,new Tower(type));
+        }else{
+            console.log("Not enough money!")
         }
     }
     
@@ -53,6 +80,8 @@ class Game{
             m*=0.1
             this.money += parseInt(m)
             this.board.remove_tower(i,j)
+        }else{
+            console.log("This is not a tower!")
         }
     }
 
@@ -127,7 +156,7 @@ class Game{
 
         if(this.enemies.length==0){//clear level
             this.level+=1
-            this.init_enemy()
+            this.break = true
         }
 
 
@@ -146,6 +175,7 @@ class Game{
     }
 
     lost_health(){
+        //when enemy reaches the end...
         let new_enemies=[]
         for(let i=0;i<this.enemies.length;i++){
             if(this.enemies[i].get_x()==55 && this.enemies[i].get_y()==5){
