@@ -1,11 +1,12 @@
 
 class Game{
-    constructor(score=0,money=100,level=1,health=1000){
+    constructor(){
         this.health = health
         this.score = score
         this.money = money
         this.level = level
-        this.break = false
+        this.break = true
+        this.editable = true
         this.start_time = Date.now()
         this.time = 0
         this.board = new Board()
@@ -15,14 +16,25 @@ class Game{
 
     init(){
         this.board.init();
-        this.break = true
+    }
+
+    get_enemies(){
+        return this.enemies
+    }
+
+    set_enemies(enemies){
+        this.enemies = enemies
     }
 
     start_round(){
-        if(this.break){
-            this.break = false
+        if(this.editable){
+            this.editable = false
             this.init_enemy();
         }
+    }
+
+    is_editable(){
+        return this.editable
     }
 
     is_break(){
@@ -75,7 +87,6 @@ class Game{
         if(this.is_tower(i,j)){
             let m = 0
             m+=this.get_tower(i,j).get_power()
-            m+=this.get_tower(i,j).get_speed()
             m+=this.get_tower(i,j).get_range()
             m*=0.1
             this.money += parseInt(m)
@@ -108,8 +119,6 @@ class Game{
                 this.money-=this.get_tower(i,j).get_level()*5
                 if(type=="power"){
                     this.get_tower(i,j).power_up()
-                }else if(type == "speed"){
-                    this.get_tower(i,j).speed_up()
                 }else if(type=="range"){
                     this.get_tower(i,j).range_up()
                 }
@@ -130,11 +139,9 @@ class Game{
             for(let i=0;i<this.board.get_height();i++){//for all tower
                 for(let j=0;j<this.board.get_width();j++){
                     if(this.is_tower(i,j)){
-                        if(this.time%this.get_tower(i,j).get_speed()==0){//check if can attack(cool down)
-                            if(this.get_tower(i,j).get_attackable()<0 || this.get_tower(i,j).get_attackable()>0){//check if already attacked
-                                this.attack(i,j,this.enemies[index])
-                                this.get_tower(i,j).decrease_attackable()
-                            }
+                        if(this.get_tower(i,j).get_attackable()<0 || this.get_tower(i,j).get_attackable()>0){//check if already attacked
+                            this.attack(i,j,this.enemies[index])
+                            this.get_tower(i,j).decrease_attackable()
                         }
                     }
                 }
@@ -146,6 +153,8 @@ class Game{
             if(this.enemies[index].get_health()>0){
                 new_enemies.push(this.enemies[index]);
             }else{
+                //enemy dead effect can be process here
+
                 //killed reward
                 this.score+=10
                 this.money+=1
@@ -157,6 +166,7 @@ class Game{
         if(this.enemies.length==0){//clear level
             this.level+=1
             this.break = true
+            this.editable = true
         }
 
 
@@ -191,6 +201,9 @@ class Game{
     attack(i,j,enemy){
         if(this.is_tower(i,j)){
             if(this.is_in_range(j*10+5,i*10+5,this.get_tower(i,j).get_range(),enemy.get_x(),enemy.get_y())){
+                
+                //attack effect can be process here
+
                 enemy.set_health(enemy.get_health()-this.get_tower(i,j).get_power())
             }
         }
@@ -222,6 +235,8 @@ class Game{
         this.time = data.time
         this.board = data.board
         this.enemies = data.enemies
+        this.editable = true
+        this.break = true
         console.log("Successfully loaded!")
         
     }
