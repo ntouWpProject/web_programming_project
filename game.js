@@ -1,10 +1,10 @@
 
 class Game{
     constructor(){
-        this.health = health
-        this.score = score
-        this.money = money
-        this.level = level
+        this.health = 1000
+        this.score = 0
+        this.money = 100
+        this.level = 1
         this.break = true
         this.editable = true
         this.start_time = Date.now()
@@ -16,6 +16,9 @@ class Game{
 
     init(){
         this.board.init();
+    }
+    get_health(){
+        return this.health
     }
 
     get_enemies(){

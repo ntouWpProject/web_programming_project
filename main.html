@@ -24,8 +24,10 @@
     let game = new Game();
     function start_game(){
         game.init();
-        console.log(JSON.stringify(game))
-        console.log(game)
+        game.start_round()
+        game.update_time()
+        console.log(game.time)
+
         //game.all_tower_attack()
         //console.log(game)
         /*
