@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>WP_project</title>
+		<style>
+			body { margin: 0; }
+
+            .leftTop {
+                position: absolute;
+                top: 0px;
+                left : 10px;
+            }
+
+            .leftBottom {
+                position: absolute;
+                bottom: 20px;
+                left : 10px;
+            }
+
+            button {
+                margin: 5px;
+            }
+		</style>
+	</head>
+	<body>
+        <p class="leftTop" id="leftTop"></p>
+        <div class="leftBottom">
+            <button type="button" id="startBtn">start</button><br>
+            <button type="button" id="pauseBtn">pause</button><br>
+            <button type="button" id="exitBtn">exit</button>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.min.js"></script>
+        <script>
+            // UI的部分
+            let message = ""
+
+            // 攻擊波數
+            let num = 1
+            message += "當前攻擊: 第 " + num.toString() + " 波<br>"
+
+            // score
+            let score = 0
+            message += "累積分數: " + score.toString() + "<br>"
+
+            // money
+            let money = 100
+            message += "當前金額: " + money.toString() + "<br>"
+
+            // 剩餘血量
+            let blood = 1000
+            message += "剩餘血量: " + blood.toString() + "<br>"
+
+            // 寫入leftTop
+            document.getElementById("leftTop").innerHTML = message
+        </script>
+		<script>
+            // 建模、動畫的部分
+            let scene, renderer, camera
+            // 地板長寬
+            let x = 12, z = 6
+            let cube = new Array(z)
+            for(var i = 0; i < z; i++) {
+                cube[i]= new Array(x)
+            }
+            let is_cubeHighlight = new Array(z)
+            for(var i = 0; i < z; i++) {
+                is_cubeHighlight[i] = new Array(x)
+            }
+            for(var i =0; i < z; i++) {
+                for(var j = 0; j < x; j++) {
+                    is_cubeHighlight[i][j] = false
+                }
+            }
+            // 敵人相關參數
+            let enemyNum = 5
+            let is_start = new Array(enemyNum)
+            for(var i = 0; i < enemyNum; i++) {
+                is_start[i] = false
+            }
+            let is_animation = new Array(enemyNum)
+            for(var i = 0; i < enemyNum; i++) {
+                is_animation[i] = false
+            }
+            let enemySpeed = 0.09
+            let enemy = new Array(enemyNum)
+            // raycast
+            const raycaster = new THREE.Raycaster()
+            const mouse = new THREE.Vector2()
+            // light
+            let ambientLightIntensity = 0.6
+            let pointLightIntensity = 0.4
+            // texture
+            grassMap = new THREE.TextureLoader().load('grass.jpg')
+            grassMaterial = new THREE.MeshPhongMaterial({ 
+                map: grassMap
+            })
+            roadMap = new THREE.TextureLoader().load('road.jpg')
+            roadMaterial = new THREE.MeshPhongMaterial({ 
+                map: roadMap
+            })
+            woodMap = new THREE.TextureLoader().load('wood.jpg')
+            woodMaterial = new THREE.MeshPhongMaterial({ 
+                map: woodMap
+            })
+            grassHighlightMap = new THREE.TextureLoader().load('grassHighlight.png')
+            grassHighlightMaterial = new THREE.MeshPhongMaterial({ 
+                map: grassHighlightMap
+            })
+            // towers
+            let towers = new Array(z)
+            for(var i = 0; i < z; i++) {
+                towers[i]= new Array(x)
+            }
+            let tower0, tower1, tower2
+            // tower1Attack
+            let lineTower1
+            let is_tower1Attack = new Array(z)
+            for(var i = 0; i < z; i++) {
+                is_tower1Attack[i]= new Array(x)
+            }
+            for(var i = 0; i < z; i++) {
+                for(var j = 0; j < x; j++) {
+                    is_tower1Attack[i][j] = false
+                }
+            }
+            let geometry1 = new Array(z)
+            for(var i = 0; i < z; i++) {
+                geometry1[i]= new Array(x)
+            }
+
+            function init() {
+                // 建立場景
+                scene = new THREE.Scene()
+
+                // 建立渲染器
+                renderer = new THREE.WebGLRenderer({
+                    alpha: true,
+                    antialias: true
+                })
+                renderer.setSize(window.innerWidth, window.innerHeight) // 場景大小
+                renderer.setClearColor(0xeeeeee, 1.0) // 預設背景顏色
+                renderer.shadowMap.enabled = true // 陰影效果
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap
+                // 將渲染器的 DOM 綁到網頁上
+                document.body.appendChild(renderer.domElement)
+
+                // 建立相機
+                camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100)
+                camera.position.set(0, 10, 10)
+                camera.lookAt(scene.position)
+
+                // 建立環境光
+                let ambientLight = new THREE.AmbientLight(0xffffff, ambientLightIntensity)
+                ambientLight.position.set(0, 10, 10)
+                scene.add(ambientLight)
+
+                // 建立點光源0
+                let pointLight0 = new THREE.PointLight(0xffffff, pointLightIntensity)
+                pointLight0.position.set(-4, 5, -2)
+                pointLight0.castShadow = true
+                scene.add(pointLight0)
+                // 建立點光源1
+                let pointLight1 = new THREE.PointLight(0xffffff, pointLightIntensity)
+                pointLight1.position.set(0, 5, -2)
+                pointLight1.castShadow = true
+                scene.add(pointLight1)
+                // 建立點光源2
+                let pointLight2 = new THREE.PointLight(0xffffff, pointLightIntensity)
+                pointLight2.position.set(4, 5, -2)
+                pointLight2.castShadow = true
+                scene.add(pointLight2)
+                // 建立點光源3
+                let pointLight3 = new THREE.PointLight(0xffffff, pointLightIntensity)
+                pointLight3.position.set(-4, 0, 8)
+                pointLight3.castShadow = true
+                scene.add(pointLight3)
+                // 建立點光源4
+                let pointLight4 = new THREE.PointLight(0xffffff, pointLightIntensity)
+                pointLight4.position.set(0, 0, 8)
+                pointLight4.castShadow = true
+                scene.add(pointLight4)
+                // 建立點光源5
+                let pointLight5 = new THREE.PointLight(0xffffff, pointLightIntensity)
+                pointLight5.position.set(4, 0, 8)
+                pointLight5.castShadow = true
+                scene.add(pointLight5)
+
+                // 建立地板
+                let position_x = -5
+                let position_z = -2
+                for(var i = 0; i < z;i++) {
+                    position_x = -5
+                    for(var j = 0; j < x;j++) {
+                        geometry = new THREE.BoxGeometry(1, 1, 1)
+                        if((j == 1 && i != 5) || (j == 3 && i != 0) || (j == 5 && i != 5) || (j == 7 && i != 0) || (j == 9 && i != 5) || (j == 11 && i != 0)) {
+                            materials = [roadMaterial, roadMaterial, grassMaterial, roadMaterial, woodMaterial, roadMaterial]
+                        }
+                        else {
+                            materials = [roadMaterial, roadMaterial, roadMaterial, roadMaterial, woodMaterial, roadMaterial]
+                        }
+                        cube[i][j] = new THREE.Mesh(geometry, materials)
+                        cube[i][j].position.set(position_x, 0, position_z)
+                        cube[i][j].castShadow = true
+                        cube[i][j].receiveShadow = true
+                        scene.add(cube[i][j])
+                        position_x += 1
+                    }
+                    position_z += 1
+                }
+            }
+
+            // mouseHover
+            function onMouseMove(event) {
+                mouse.x = (event.clientX / window.innerWidth)*2 - 1
+                mouse.y = -(event.clientY / window.innerHeight)*2 + 1
+            }
+
+            // 監聽螢幕寬高來做簡單 RWD 設定
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight
+                camera.updateProjectionMatrix()
+                renderer.setSize(window.innerWidth, window.innerHeight)
+            })
+
+            // 讓敵人沿著路走
+            function animateEnemy() {
+                for(var i = 0; i < enemyNum; i++) {
+                    if(is_animation[i]) {
+                        if((-5.2 <= enemy[i].position.x && enemy[i].position.x <= -4.8) && (-2.2 <= enemy[i].position.z && enemy[i].position.z <= 3) ||
+                           (-1.2 <= enemy[i].position.x && enemy[i].position.x <= -0.8) && (-2.2 <= enemy[i].position.z && enemy[i].position.z <= 3) ||
+                           (2.8 <= enemy[i].position.x && enemy[i].position.x <= 3.2) && (-2.2 <= enemy[i].position.z && enemy[i].position.z <= 3)) {
+                            enemy[i].position.z += enemySpeed
+                        }
+                        else if((-5.2 <= enemy[i].position.x && enemy[i].position.x <= -3) && (2.8 <= enemy[i].position.z && enemy[i].position.z <= 3.2) ||
+                                (-3.2 <= enemy[i].position.x && enemy[i].position.x <= -1) && (-2.2 <= enemy[i].position.z && enemy[i].position.z <= -1.8) ||
+                                (-1.2 <= enemy[i].position.x && enemy[i].position.x <= 1) && (2.8 <= enemy[i].position.z && enemy[i].position.z <= 3.2) ||
+                                (0.8 <= enemy[i].position.x && enemy[i].position.x <= 3) && (-2.2 <= enemy[i].position.z && enemy[i].position.z <= -1.8) ||
+                                (2.8 <= enemy[i].position.x && enemy[i].position.x <= 5) && (2.8 <= enemy[i].position.z && enemy[i].position.z <= 3.2) ||
+                                (4.8 <= enemy[i].position.x && enemy[i].position.x <= 6) && (-2.2 <= enemy[i].position.z && enemy[i].position.z <= -1.8)) {
+                            enemy[i].position.x += enemySpeed
+                        }
+                        else if((-3.2 <= enemy[i].position.x && enemy[i].position.x <= -2.8) && (-2 <= enemy[i].position.z && enemy[i].position.z <= 3.2) ||
+                                (0.8 <= enemy[i].position.x && enemy[i].position.x <= 1.2) && (-2 <= enemy[i].position.z && enemy[i].position.z <= 3.2) ||
+                                (4.8 <= enemy[i].position.x && enemy[i].position.x <= 5.2) && (-2 <= enemy[i].position.z && enemy[i].position.z <= 3.2)) {
+                            enemy[i].position.z -= enemySpeed
+                        }
+                    }
+                }
+            }
+
+            // enemyMove when startBtnClicked
+            function enemyMove() {
+                // 建立敵人
+                for(var i = 0; i < enemyNum; i++) {
+                    if(!is_start[i]) {
+                        geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+                        material = new THREE.MeshPhysicalMaterial({
+                            color: 0xaaaa22
+                        })
+                        enemy[i] = new THREE.Mesh(geometry, material)
+                        enemy[i].position.set(-5, 0.75, -2)
+                        enemy[i].castShadow = true
+                        enemy[i].receiveShadow = true
+                        scene.add(enemy[i])
+                        is_start[i] = true
+                        is_animation[i] = true
+                        // TODO: 間隔產生
+
+                    }
+                    else {
+                        for(var i = 0; i < enemyNum; i++) {
+                            is_animation[i] = true
+                        }
+                    }
+                }
+            }
+
+            // enemyStop when pauseBtnClicked
+            function enemyStop() {
+                for(var i = 0; i < enemyNum; i++) {
+                    is_animation[i] = false
+                }
+            }
+
+            // 偵測Object是否被點擊
+            function OnObjectClicked(event) {
+                event.preventDefault();
+                // update the picking ray with the camera and mouse position
+	            raycaster.setFromCamera(mouse, camera)
+                // calculate objects intersecting the picking ray
+	            const intersects = raycaster.intersectObjects(scene.children)
+                for(let k = 0; k < intersects.length; k++) {
+                    // index是為了存放塔在towers[towerIndexZ][towerIndexX]中
+                    let towerIndexZ, towerIndexX
+                    // 如果點擊的是草地
+                    if(intersects[k].object.material[2] == grassHighlightMaterial) {
+                        // TODO: 避免重複蓋塔
+
+                        // 在地板周圍跳出3個防禦塔選項
+                        geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+                        // tower0
+                        towerMaterial0 = new THREE.MeshPhysicalMaterial({ 
+                            color: 0xaa2222
+                        })
+                        tower0 = new THREE.Mesh(geometry, towerMaterial0)
+                        tower0.position.set(intersects[k].object.position.x-1, intersects[k].object.position.y+1, intersects[k].object.position.z+1)
+                        tower0.castShadow = true
+                        tower0.receiveShadow = true
+                        scene.add(tower0)
+                        // tower1
+                        towerMaterial1 = new THREE.MeshPhysicalMaterial({ 
+                            color: 0x22aa22
+                        })
+                        tower1 = new THREE.Mesh(geometry, towerMaterial1)
+                        tower1.position.set(intersects[k].object.position.x+1, intersects[k].object.position.y+1, intersects[k].object.position.z+1)
+                         tower1.castShadow = true
+                        tower1.receiveShadow = true
+                        scene.add(tower1)
+                        // tower2
+                        towerMaterial2 = new THREE.MeshPhysicalMaterial({ 
+                        color: 0x2222aa
+                        })
+                        tower2 = new THREE.Mesh(geometry, towerMaterial2)
+                        tower2.position.set(intersects[k].object.position.x, intersects[k].object.position.y+1, intersects[k].object.position.z-1)
+                        tower2.castShadow = true
+                        tower2.receiveShadow = true
+                        scene.add(tower2)
+                    }
+                    // 如果點擊是tower0~tower2
+                    else if(intersects[k].object == tower0 || intersects[k].object == tower1 || intersects[k].object == tower2) {
+                        // TODO: hover到防禦塔可以highlight
+
+                        // click防禦塔後在object上方蓋塔, 並將周圍3個防禦塔消失
+                        if(intersects[k].object == tower0) {
+                            scene.remove(tower1, tower2)
+                            tower0.position.x += 1
+                            tower0.position.z -= 1
+                            console.log("tower0 position (z, x) = ", tower0.position.z, tower0.position.x)
+                            towerIndexZ = tower0.position.z + 2
+                            towerIndexX = tower0.position.x + 5
+                            towers[towerIndexZ][towerIndexX] = tower0
+                            console.log("tower0 index (z, x) = ", towerIndexZ, towerIndexX)
+                        }
+                        else if(intersects[k].object == tower1) {
+                            scene.remove(tower0, tower2)
+                            tower1.position.x -= 1
+                            tower1.position.z -= 1
+                            console.log("tower1 position (z, x) = ", tower1.position.z, tower1.position.x)
+                            towerIndexZ = tower1.position.z + 2
+                            towerIndexX = tower1.position.x + 5
+                            towers[towerIndexZ][towerIndexX] = tower1
+                            console.log("tower1 index (z, x) = ", towerIndexZ, towerIndexX)
+                        }
+                        else if(intersects[k].object == tower2) {
+                            scene.remove(tower0, tower1)
+                            tower2.position.z += 1
+                            console.log("tower2 position (z, x) = ", tower2.position.z, tower2.position.x)
+                            towerIndexZ = tower2.position.z + 2
+                            towerIndexX = tower2.position.x + 5
+                            towers[towerIndexZ][towerIndexX] = tower2
+                            console.log("tower2 index (z, x) = ", towerIndexZ, towerIndexX)
+                        }
+                    }
+                    // TODO: 沒有選取塔要恢復原狀
+                    
+                }
+            }
+
+            // towerAttackEnemy
+            function towerAttackEnemy() {
+                // 設定線的顏色
+                let material = new THREE.LineBasicMaterial({ 
+                    color: 0x000000
+                })
+                // enemy存在才要攻擊
+                for(var k = 0; k < enemyNum; k++) {
+                    if(enemy[k]) {
+                        for(var i = 0; i < z; i++) {
+                            for(var j = 0; j < x; j++) {
+                                // 如果是tower0(R) : 距離一般, 群體攻擊
+                                if(towers[i][j] == tower0) {
+                                    
+                                }
+                                // 如果是tower1(G) : 距離一般, 單體攻擊
+                                else if(towers[i][j] == tower1) {
+                                    //geometry1[i][j] = new THREE.Geometry()
+                                    //geometry1[i][j].vertices.push(new THREE.Vector3(towers[i][j].position.x, towers[i][j].position.y, towers[i][j].position.z))
+                                    //geometry1[i][j].vertices.push(new THREE.Vector3(enemy[k].position.x, enemy[k].position.y, enemy[k].position.z))
+                                    //lineTower1 = new THREE.Line( geometry1[i][j], material)
+                                    //scene.add(lineTower1)
+                                }
+                                // 如果是tower2(B) : 距離遠距, 單體攻擊
+                                else if(towers[i][j] == tower2) {
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            function render() {
+                animateEnemy()
+                if(is_start) {
+                    towerAttackEnemy()
+                }
+                // update the picking ray with the camera and mouse position
+	            raycaster.setFromCamera(mouse, camera)
+                // calculate objects intersecting the picking ray
+	            const intersects = raycaster.intersectObjects(scene.children)
+                for(var i = 0; i < intersects.length; i++) {
+                    for(var j = 0; j < z; j++) {
+                        for(var k = 0; k < x; k++) {
+                            // 判斷哪個cube被hover
+                            if(intersects[i].object == cube[j][k]) {
+                                is_cubeHighlight[j][k] = true
+                            }
+                            else {
+                                is_cubeHighlight[j][k] = false
+                            }
+                            // 把hover的換texture, 沒有hover的換回原本的texture
+                            if(is_cubeHighlight[j][k] && intersects[i].object.position.y == 0) {
+                                if(intersects[i].object.material[2] == grassMaterial) {
+                                    intersects[i].object.material[2] = grassHighlightMaterial
+                                }
+                            }
+                            else {
+                                if(cube[j][k].material[2] == grassHighlightMaterial) {
+                                    cube[j][k].material[2] = grassMaterial
+                                }
+                            }
+                        }
+                    }
+                }
+                requestAnimationFrame(render)
+                renderer.render(scene, camera)
+            }
+
+            init()
+            render()
+            window.addEventListener('mousemove', onMouseMove, false);
+            window.addEventListener('click', OnObjectClicked, false);
+		</script>
+        <script>
+            //button的部分
+            let startBtn = document.getElementById("startBtn");
+            startBtn.addEventListener("click", startBtnClicked, false);
+            let pauseBtn = document.getElementById("pauseBtn");
+            pauseBtn.addEventListener("click", pauseBtnClicked, false);
+            let exitBtn = document.getElementById("exitBtn");
+            exitBtn.addEventListener("click", exitBtnClicked, false);
+
+            // startBtnClicked
+            function startBtnClicked(){
+                console.log("startBtn clicked")
+                enemyMove()
+            }
+
+            // pauseBtnClicked
+            function pauseBtnClicked(){
+                console.log("pauseBtn clicked")
+                enemyStop()
+            }
+
+            // exitBtnClicked
+            function exitBtnClicked(){
+                console.log("exitBtn clicked")
+            }
+        </script>
+    </body>
+</html>
