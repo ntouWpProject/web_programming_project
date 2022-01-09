@@ -1,6 +1,6 @@
 
-class Game{
-    constructor(){
+class Game {
+    constructor() {
         this.health = 1000
         this.score = 0
         this.money = 100
@@ -14,160 +14,167 @@ class Game{
 
     }
 
-    init(){
+    init() {
         this.board.init();
+        this.init_enemy();
     }
-    get_health(){
+    get_health() {
         return this.health
     }
 
-    get_enemies(){
+
+    get_enemies() {
         return this.enemies
     }
 
-    set_enemies(enemies){
+    set_enemies(enemies) {
         this.enemies = enemies
     }
 
-    start_round(){
-        if(this.editable){
+    start_round() {
+        if (this.editable) {
             this.editable = false
-            this.init_enemy();
         }
     }
 
-    is_editable(){
+    is_editable() {
         return this.editable
     }
 
-    is_break(){
+    is_break() {
         return this.break
     }
 
-    pause(){
+    pause() {
         this.break = true
     }
 
-    resume(){
+    resume() {
         this.break = false
     }
-    
-    get_level(){
+
+    get_level() {
         return this.level
     }
 
-    is_game_over(){
-        if(this.health<=0){
+    is_game_over() {
+        if (this.health <= 0) {
             return true
-        }else{
+        } else {
             return false
         }
     }
 
-    init_enemy(){
-        console.log("level:"+this.level)
+    init_enemy() {
+        console.log("level:" + this.level)
         this.enemies = []
-        for(let i=0;i<this.level*10;i++){
-            this.enemies.push(new Enemy(this.level*50))
+        for (let i = 0; i < this.level * 10; i++) {
+            this.enemies.push(new Enemy(this.level * 50))
         }
     }
 
-    update_time(){
-        this.time = Date.now()-this.start_time
+    update_time() {
+        this.time = Date.now() - this.start_time
     }
 
-    
-    buy_tower(i,j,type){
-        if(this.money>=10){
-            this.money-=10
-            this.board.add_tower(i,j,new Tower(type));
-        }else{
+
+    buy_tower(i, j, type) {
+        if (this.money >= 10) {
+            this.money -= 10
+            this.board.add_tower(i, j, new Tower(type));
+        } else {
             console.log("Not enough money!")
         }
     }
-    
-    sell_tower(i,j){
-        if(this.is_tower(i,j)){
+
+    sell_tower(i, j) {
+        if (this.is_tower(i, j)) {
             let m = 0
-            m+=this.get_tower(i,j).get_power()
-            m+=this.get_tower(i,j).get_range()
-            m*=0.1
+            m += this.get_tower(i, j).get_power()
+            m += this.get_tower(i, j).get_range()
+            m *= 0.1
             this.money += parseInt(m)
-            this.board.remove_tower(i,j)
-        }else{
+            this.board.remove_tower(i, j)
+        } else {
             console.log("This is not a tower!")
         }
     }
 
-    is_tower(i,j){
-        if(this.board.grid[i][j]["tower"]!=undefined){
+    is_tower(i, j) {
+        if (this.board.grid[i][j]["tower"] != undefined) {
             return true
-        }else{
+        } else {
             return false
         }
     }
 
-    get_tower(i,j){
-        if(this.is_tower(i,j)){
+    get_tower(i, j) {
+        if (this.is_tower(i, j)) {
             return this.board.grid[i][j]["tower"];
-        }else{
+        } else {
             console.log("not a tower!");
         }
     }
 
-    upgrade_tower(i,j,type){
-        
-        if(this.is_tower(i,j)){
-            if(this.money>this.get_tower(i,j).get_level()*5){
-                this.money-=this.get_tower(i,j).get_level()*5
-                if(type=="power"){
-                    this.get_tower(i,j).power_up()
-                }else if(type=="range"){
-                    this.get_tower(i,j).range_up()
+    upgrade_tower(i, j, type) {
+
+        if (this.is_tower(i, j)) {
+            if (this.money > this.get_tower(i, j).get_level() * 5) {
+                this.money -= this.get_tower(i, j).get_level() * 5
+                if (type == "power") {
+                    this.get_tower(i, j).power_up()
+                } else if (type == "range") {
+                    this.get_tower(i, j).range_up()
                 }
-            }else{
+            } else {
                 console.log("not enough money!")
             }
-        }else{
+        } else {
             console.log("not a tower!");
         }
     }
 
-    is_in_range(tower_x,tower_y,range,enemy_x,enemy_y){
-        return Math.sqrt((tower_x-enemy_x)*(tower_x-enemy_x)+(tower_y-enemy_y)*(tower_y-enemy_y))<range
+    is_in_range(tower_x, tower_y, range, enemy_x, enemy_y) {
+        return Math.sqrt((tower_x - enemy_x) * (tower_x - enemy_x) + (tower_y - enemy_y) * (tower_y - enemy_y)) <= range
     }
 
-    all_tower_attack(){
-        for(let index in this.enemies){//for all enemies
-            for(let i=0;i<this.board.get_height();i++){//for all tower
-                for(let j=0;j<this.board.get_width();j++){
-                    if(this.is_tower(i,j)){
-                        if(this.get_tower(i,j).get_attackable()<0 || this.get_tower(i,j).get_attackable()>0){//check if already attacked
-                            this.attack(i,j,this.enemies[index])
-                            this.get_tower(i,j).decrease_attackable()
+    all_tower_attack() {
+        for (let index in this.enemies) {//for all enemies
+            for (let i = 0; i < this.board.get_height(); i++) {//for all tower
+                for (let j = 0; j < this.board.get_width(); j++) {
+                    if (this.is_tower(i, j)) {
+                        if (this.get_tower(i, j).get_attackable() < 0 || this.get_tower(i, j).get_attackable() > 0) {//check if already attacked
+                            this.attack(i, j, this.enemies[index])
+
+                            //tower of i,j attack one enemy
+
+                            this.get_tower(i, j).decrease_attackable()
                         }
                     }
                 }
             }
         }
         //process dead enemy
+        let removed_enemies = [];
         let new_enemies = []
-        for(let index in this.enemies){
-            if(this.enemies[index].get_health()>0){
+        for (let index in this.enemies) {
+            if (this.enemies[index].get_health() > 0) {
                 new_enemies.push(this.enemies[index]);
-            }else{
+            } else {
                 //enemy dead effect can be process here
+                removed_enemies.push(this.enemies[index]);
 
                 //killed reward
-                this.score+=10
-                this.money+=1
+                this.score += 10
+                this.money += 1
             }
         }
         this.enemies = new_enemies;
         this.lost_health()//check if lost health
 
-        if(this.enemies.length==0){//clear level
-            this.level+=1
+        if (this.enemies.length == 0) {//clear level
+            this.level += 1
+            this.init_enemy()
             this.break = true
             this.editable = true
         }
@@ -176,24 +183,25 @@ class Game{
 
 
         //restore attackable
-        for(let i=0;i<this.board.get_height();i++){
-            for(let j=0;j<this.board.get_width();j++){
-                if(this.is_tower(i,j)){  
-                    if(this.get_tower(i,j).get_attackable()==0){
-                        this.get_tower(i,j).increase_attackable()
+        for (let i = 0; i < this.board.get_height(); i++) {
+            for (let j = 0; j < this.board.get_width(); j++) {
+                if (this.is_tower(i, j)) {
+                    if (this.get_tower(i, j).get_attackable() == 0) {
+                        this.get_tower(i, j).increase_attackable()
                     }
                 }
             }
         }
+        return removed_enemies;
     }
 
-    lost_health(){
+    lost_health() {
         //when enemy reaches the end...
-        let new_enemies=[]
-        for(let i=0;i<this.enemies.length;i++){
-            if(this.enemies[i].get_x()==55 && this.enemies[i].get_y()==5){
+        let new_enemies = []
+        for (let i = 0; i < this.enemies.length; i++) {
+            if (this.enemies[i].get_x() == 55 && this.enemies[i].get_y() == 5) {
                 this.health -= this.enemies[i].get_health();
-            }else{
+            } else {
                 new_enemies.push(this.enemies[i]);
             }
         }
@@ -201,33 +209,36 @@ class Game{
     }
 
     //let grid(i,j) attack an enemy
-    attack(i,j,enemy){
-        if(this.is_tower(i,j)){
-            if(this.is_in_range(j*10+5,i*10+5,this.get_tower(i,j).get_range(),enemy.get_x(),enemy.get_y())){
-                
+    attack(i, j, enemy) {
+        if (this.is_tower(i, j)) {
+            if (this.is_in_range(j, i, this.get_tower(i, j).get_range(), enemy.get_x(), enemy.get_y())) {
+                //console.log(enemy)
+                //TODO
                 //attack effect can be process here
 
-                enemy.set_health(enemy.get_health()-this.get_tower(i,j).get_power())
+                enemy.set_health(enemy.get_health() - this.get_tower(i, j).get_power())
+            } else {
+                console.log(enemy.get_x(), enemy.get_y())
             }
         }
     }
 
-    save_game(save_name){
-        let jsonObj = JSON.stringify(this,null,'\t');
+    save_game(save_name) {
+        let jsonObj = JSON.stringify(this, null, '\t');
         //console.log(jsonObj);
 
-        localStorage.setItem(save_name,jsonObj);
+        localStorage.setItem(save_name, jsonObj);
 
         console.log("Successfully saved!")
     }
 
 
-    get_all_save_name(){
+    get_all_save_name() {
         return Object.keys(localStorage)
     }
 
 
-    load_game(key){
+    load_game(key) {
 
         let data = JSON.parse(localStorage.getItem(key))
         this.health = data.health
@@ -241,7 +252,7 @@ class Game{
         this.editable = true
         this.break = true
         console.log("Successfully loaded!")
-        
+
     }
 
 }
