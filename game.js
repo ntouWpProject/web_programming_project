@@ -145,7 +145,7 @@ class Game {
                     if (this.is_tower(i, j)) {
                         if (this.get_tower(i, j).get_attackable() < 0 || this.get_tower(i, j).get_attackable() > 0) {//check if already attacked
                             this.attack(i, j, this.enemies[index])
-
+                            console.log("enemy "+index+" is attacked");
                             //tower of i,j attack one enemy
 
                             this.get_tower(i, j).decrease_attackable()
@@ -170,7 +170,7 @@ class Game {
             }
         }
         this.enemies = new_enemies;
-        this.lost_health()//check if lost health
+        removed_enemies.push(...this.lost_health())//check if lost health
 
         if (this.enemies.length == 0) {//clear level
             this.level += 1
@@ -198,28 +198,30 @@ class Game {
     lost_health() {
         //when enemy reaches the end...
         let new_enemies = []
+        let remove = []
         for (let i = 0; i < this.enemies.length; i++) {
-            if (this.enemies[i].get_x() == 55 && this.enemies[i].get_y() == 5) {
+            if (this.enemies[i].get_y() < 1 && this.enemies[i].get_x() > 11) {
                 this.health -= this.enemies[i].get_health();
+                console.log(this.enemies[i].get_health())
+                remove.push(this.enemies[i])
             } else {
                 new_enemies.push(this.enemies[i]);
             }
         }
         this.enemies = new_enemies;
+        return remove
     }
 
     //let grid(i,j) attack an enemy
     attack(i, j, enemy) {
         if (this.is_tower(i, j)) {
-            if (this.is_in_range(j, i, this.get_tower(i, j).get_range(), enemy.get_x(), enemy.get_y())) {
+            if (this.is_in_range(j, i, this.get_tower(i, j).get_range(), enemy.get_x(), enemy.get_y()) && enemy.is_visible()) {
                 //console.log(enemy)
                 //TODO
                 //attack effect can be process here
 
                 enemy.set_health(enemy.get_health() - this.get_tower(i, j).get_power())
-            } else {
-                console.log(enemy.get_x(), enemy.get_y())
-            }
+            } 
         }
     }
 

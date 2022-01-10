@@ -1,8 +1,11 @@
 class Enemy {
-    constructor(health = 1000, x = 0, y = 0) {
+    constructor(health = 50, x = 0, y = 0) {
         this.health = health;
         this.x = x
         this.y = y
+        this.visible = false
+        this.is_start = false
+        this.is_animation = false
         let geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
         let material = new THREE.MeshPhysicalMaterial({
             color: 0xaaaa22
@@ -11,6 +14,10 @@ class Enemy {
         this.obj.position.set(-5, 0.75, -2)
         this.obj.castShadow = true
         this.obj.receiveShadow = true
+        
+    }
+    is_visible(){
+        return this.visible
     }
 
     get_x() {
