@@ -28,6 +28,10 @@
 </head>
 
 <body>
+    <audio preload="auto" id="bgm">
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+
     <p class="leftTop" id="leftTop"></p>
     <div class="leftBottom">
         <button type="button" id="startBtn">start</button><br>
@@ -40,6 +44,20 @@
     <script src="tower.js"></script>
     <script src="enemy.js"></script>
     <script>
+        /*
+        var source = "./bgm.mp3"
+        var audio = document.createElement("audio");
+        //
+        audio.autoplay = true;
+        //
+        audio.load()
+        audio.addEventListener("load", function() { 
+            audio.play(); 
+        }, true);
+        audio.control = true
+        audio.src = source;*/
+
+
         let level = 1
         let score = 0
         let money = 100
@@ -449,9 +467,12 @@
         
         let is_start_click = false
         function render() {
+           
+
+
             animateEnemy()
             //console.log(JSON.stringify(is_start))
-            if (new Date() - time > 2000 && is_start_click) {
+            if (new Date() - time > 900 && is_start_click) {
                 console.log("1sec")
                 time = new Date();
                 enemyMove()
@@ -477,9 +498,6 @@
                 if (enemyNum < enemy.length) {
                     //new enemy is created
                     now_enemy = 0
-                    for (let i = 0; i < enemy.length; i++) {
-                        is_start[i] = false
-                    }
                 }
                 enemyNum = enemy.length
 
@@ -532,6 +550,9 @@
 
         // startBtnClicked
         function startBtnClicked() {
+            bgm = document.getElementById("bgm")
+            bgm.loop = true
+            bgm.play()
             console.log("startBtn clicked")
             is_start_click = true
             time = new Date()
