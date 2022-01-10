@@ -28,6 +28,10 @@
 </head>
 
 <body>
+    <audio preload="auto" id="bgm">
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+
     <p class="leftTop" id="leftTop"></p>
     <div class="leftBottom">
         <button type="button" id="startBtn">start</button><br>
@@ -40,11 +44,28 @@
     <script src="tower.js"></script>
     <script src="enemy.js"></script>
     <script>
+        /*
+        var source = "./bgm.mp3"
+        var audio = document.createElement("audio");
+        //
+        audio.autoplay = true;
+        //
+        audio.load()
+        audio.addEventListener("load", function() { 
+            audio.play(); 
+        }, true);
+        audio.control = true
+        audio.src = source;*/
+
+
         let level = 1
         let score = 0
         let money = 100
         let health = 1000
         function show_msg(level, score, money, health) {
+            if(health<=0){
+                //TODO: game over
+            }
             // UI的部分
             let message = ""
 
@@ -103,15 +124,9 @@
         // 敵人相關參數
         let enemy = game.get_enemies();
         let enemyNum = enemy.length;
-        let is_start = new Array(enemyNum)
-        for (var i = 0; i < enemyNum; i++) {
-            is_start[i] = false
-        }
-        let is_animation = new Array(enemyNum)
-        for (var i = 0; i < enemyNum; i++) {
-            is_animation[i] = false
-        }
-        let enemySpeed = 0.01
+    
+        let enemySpeed = 0.05
+        let now_enemy = 0
 
 
         //let enemy = new Array(enemyNum)
@@ -261,7 +276,7 @@
         function animateEnemy() {
 
             for (var i = 0; i < enemyNum; i++) {
-                if (is_animation[i]) {
+                if (enemy[i].is_animation) {
                     //console.log(enemy[i])
                     if ((-5.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -4.8) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3) ||
                         (-1.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -0.8) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3) ||
@@ -287,11 +302,27 @@
                 }
             }
 
+            let removed = game.lost_health()
+            score = game.score
+            money = game.money
+            health = game.get_health()
+            level = game.level
+            show_msg(level, score, money, health)
+            //console.log(removed)
+            if (removed.length > 0) {
+                now_enemy -= removed.length
+                for (let i = 0; i < removed.length; i++) {
+                    scene.remove(removed[i].obj)
+                }
+            }
+            enemy = game.get_enemies()
+            enemyNum = enemy.length
             game.set_enemies(enemy);
-            //console.log(JSON.stringify(game.enemies))
+
+            //console.log(game.enemies)
 
         }
-        let now_enemy = 0
+        
         // enemyMove when startBtnClicked
         function enemyMove() {
             if (now_enemy >= enemyNum) {
@@ -302,32 +333,31 @@
             // 建立敵人
 
 
-            if (!is_start[now_enemy]) {
+            if (!enemy[now_enemy].is_start) {
                 geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
                 material = new THREE.MeshPhysicalMaterial({
                     color: 0xaaaa22
                 })
+                //console.log(enemy)
+                //console.log(now_enemy)
                 enemy[now_enemy].obj = new THREE.Mesh(geometry, material)
                 enemy[now_enemy].obj.position.set(-5, 0.75, -2)
                 enemy[now_enemy].obj.castShadow = true
                 enemy[now_enemy].obj.receiveShadow = true
 
+                enemy[now_enemy].visible = true
+                enemy[now_enemy].is_start = true
+                enemy[now_enemy].is_animation = true
                 //console.log("!!!!!!!!! " + now_enemy + " is added in scene")
 
 
                 scene.add(enemy[now_enemy].obj)
-                is_start[now_enemy] = true
-                is_animation[now_enemy] = true
                 // TODO: 間隔產生
                 now_enemy += 1;
 
 
             }
-            else {
-                for (var i = 0; i < enemyNum; i++) {
-                    is_animation[i] = true
-                }
-            }
+            
 
         }
 
@@ -434,42 +464,15 @@
             //console.log(JSON.stringify(game));
         }
 
-        // towerAttackEnemy
-        function towerAttackEnemy() {
-            // 設定線的顏色
-            let material = new THREE.LineBasicMaterial({
-                color: 0x000000
-            })
-            // enemy存在才要攻擊
-            for (var k = 0; k < enemyNum; k++) {
-                if (enemy[k]) {
-                    for (var i = 0; i < z; i++) {
-                        for (var j = 0; j < x; j++) {
-                            // 如果是tower0(R) : 距離一般, 群體攻擊
-                            if (towers[i][j] == tower0) {
-
-                            }
-                            // 如果是tower1(G) : 距離一般, 單體攻擊
-                            else if (towers[i][j] == tower1) {
-                                //geometry1[i][j] = new THREE.Geometry()
-                                //geometry1[i][j].vertices.push(new THREE.Vector3(towers[i][j].position.x, towers[i][j].position.y, towers[i][j].position.z))
-                                //geometry1[i][j].vertices.push(new THREE.Vector3(enemy[k].position.x, enemy[k].position.y, enemy[k].position.z))
-                                //lineTower1 = new THREE.Line( geometry1[i][j], material)
-                                //scene.add(lineTower1)
-                            }
-                            // 如果是tower2(B) : 距離遠距, 單體攻擊
-                            else if (towers[i][j] == tower2) {
-
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        
         let is_start_click = false
         function render() {
+           
+
+
+            animateEnemy()
             //console.log(JSON.stringify(is_start))
-            if (new Date() - time > 1000 && is_start_click) {
+            if (new Date() - time > 900 && is_start_click) {
                 console.log("1sec")
                 time = new Date();
                 enemyMove()
@@ -495,18 +498,10 @@
                 if (enemyNum < enemy.length) {
                     //new enemy is created
                     now_enemy = 0
-                    for (let i = 0; i < enemy.length; i++) {
-                        is_start[i] = false
-                    }
                 }
                 enemyNum = enemy.length
 
             }
-
-
-            animateEnemy()
-
-
             // update the picking ray with the camera and mouse position
             raycaster.setFromCamera(mouse, camera)
             // calculate objects intersecting the picking ray
@@ -555,6 +550,9 @@
 
         // startBtnClicked
         function startBtnClicked() {
+            bgm = document.getElementById("bgm")
+            bgm.loop = true
+            bgm.play()
             console.log("startBtn clicked")
             is_start_click = true
             time = new Date()
