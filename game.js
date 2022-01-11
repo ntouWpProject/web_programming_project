@@ -179,9 +179,6 @@ class Game {
             this.editable = true
         }
 
-
-
-
         //restore attackable
         for (let i = 0; i < this.board.get_height(); i++) {
             for (let j = 0; j < this.board.get_width(); j++) {
@@ -256,5 +253,4 @@ class Game {
         console.log("Successfully loaded!")
 
     }
-
 }
