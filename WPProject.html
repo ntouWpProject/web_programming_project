@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>WP_project</title>
@@ -8,103 +7,168 @@
         body {
             margin: 0;
         }
-
-        .leftTop {
-            position: absolute;
-            top: 0px;
-            left: 10px;
-        }
-
-        .leftBottom {
+        #upgradeTowerBtns {
             position: absolute;
             bottom: 20px;
-            left: 10px;
+            left: 625px;
         }
-
+        #towerBtns {
+            position: absolute;
+            bottom: 20px;
+            left: 550px;
+        }
+        #startBtn {
+            position: absolute;
+            bottom: 20px;
+            left: 725px;
+        }
         button {
-            margin: 5px;
+            font-weight:bold;
+            margin: 3px;
+            font-family: monospace;
+            font-size: 24px;
+            cursor: pointer;
+            text-align: center;   
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #019858;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px #999;
+            color: #000;
+            text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;
+        }
+        button:hover {
+            background-color: #3e8e41
+        }
+        button:active {
+            background-color: #3e8e41;
+            box-shadow: 0 5px #666;
+            transform: translateY(10px);
+        }
+        .gameOver {
+            font-size: 20px;
+        }
+        form { 
+            display: inline; 
+        }
+        .leftTop {
+            font-weight:bold;
+            color: transparent; 
+            -webkit-background-clip: text;
+            -moz-background-clip: text;
+            background-clip: text;
+            text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;
+            font-size: 15px;
+            font-family: monospace;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            background-color: transparent;
+            color: #000;
+            display: block;
+            transition: all .3s linear;
+            cursor: pointer;
+            text-align: left;
+        }
+        .leftTop > p {
+            position: relative;
+            z-index: 1;
+        }
+        .leftTop::before {
+            content: "";
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            border-top: 1px solid #000;
+            border-left: 1px solid #000;
+            top: 0;
+            left: 3;
+            transition: all .3s linear;
+            width: 20px;
+            height: 20px;
+        }
+        .leftTop::after{
+            content: "";
+            width: 20px;
+            height: 20px;
+            display: block;
+            box-sizing: border-box;
+            border-bottom: 1px solid #000;
+            border-right: 1px solid #000;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            transition: all .3s linear;
+        }
+        .leftTop:hover::before, .leftTop:hover::after{
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
-
 <body>
+    <!-- 背景音樂 -->
     <audio preload="auto" id="bgm">
         <source src="bgm.mp3" type="audio/mpeg">
     </audio>
-
-    <p class="leftTop" id="leftTop"></p>
+    <!-- 左上角的資訊 -->
+    <div class="leftTop" id="leftTop"></div>
+    <!-- 左下角的按鈕 -->
     <div class="leftBottom">
-        <button type="button" id="startBtn">start</button><br>
-        <button type="button" id="pauseBtn">pause</button><br>
-        <button type="button" id="exitBtn">exit</button>
+        <form action="#" id="upgradeTowerBtns" style="display: none;">
+            <button type="button" id="upgradePower">升級攻擊力</button>
+            <button type="button" id="upgradeRange">升級射擊範圍</button>
+        </form>
+        <form action="#" id="towerBtns" style="display: none;">
+            <button type="button" id="tower0Btn">紅色範圍塔</button>
+            <button type="button" id="tower1Btn">綠色狙擊塔</button>
+            <button type="button" id="tower2Btn">藍色普通塔</button>
+        </form>
+        <form action="#">
+            <button type="button" id="startBtn">start</button>
+        </form>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.min.js"></script>
     <script src="board.js"></script>
     <script src="game.js"></script>
     <script src="tower.js"></script>
     <script src="enemy.js"></script>
+    <!-- UI的部分 -->
     <script>
-        /*
-        var source = "./bgm.mp3"
-        var audio = document.createElement("audio");
-        //
-        audio.autoplay = true;
-        //
-        audio.load()
-        audio.addEventListener("load", function() { 
-            audio.play(); 
-        }, true);
-        audio.control = true
-        audio.src = source;*/
-
-
         let level = 1
         let score = 0
         let money = 100
         let health = 1000
         function show_msg(level, score, money, health) {
-            if(health<=0){
-                //TODO: game over
-            }
-            // UI的部分
             let message = ""
-
-            // 攻擊波數
-
-            message += "當前攻擊: 第 " + level.toString() + " 波<br>"
-
-            // score
-
-            message += "累積分數: " + score.toString() + "<br>"
-
-            // money
-
-            message += "當前金額: " + money.toString() + "<br>"
-
-            // 剩餘血量
-
-            message += "剩餘血量: " + health.toString() + "<br>"
-
+            if(health <= 0){
+                is_start_click = false
+                message += '<p><span class="gameOver">game over!!!</span><br>'
+                message += '請重整頁面重新開始遊戲</p>'
+            }
+            else {
+                // 攻擊波數
+                message += '<p>當前攻擊:  第 ' + level.toString() + ' 波</p>'
+                // score
+                message += '<p>累積分數:  ' + score.toString() + '</p>'
+                // money
+                message += '<p>當前金額:  ' + money.toString() + '</p>'
+                // 剩餘血量
+                message += '<p>剩餘血量:  ' + health.toString() + '</p>'
+            }
             // 寫入leftTop
             document.getElementById("leftTop").innerHTML = message
         }
         show_msg(level, score, money, health);
-
-
     </script>
+    <!-- 建模、動畫的部分 -->
     <script>
         let game = new Game();
+        // 開始遊戲
         game.init();
         let time = new Date();
-
-
-
-
-
-
-
-
-        // 建模、動畫的部分
         let scene, renderer, camera
         // 地板長寬
         let x = 12, z = 6
@@ -124,13 +188,8 @@
         // 敵人相關參數
         let enemy = game.get_enemies();
         let enemyNum = enemy.length;
-    
-        let enemySpeed = 0.05
+        let enemySpeed = 0.09
         let now_enemy = 0
-
-
-        //let enemy = new Array(enemyNum)
-
         // raycast
         const raycaster = new THREE.Raycaster()
         const mouse = new THREE.Vector2()
@@ -155,12 +214,12 @@
             map: grassHighlightMap
         })
         // towers
+        let nowCreateTowerPositionX, nowCreateTowerPositionY, nowCreateTowerPositionZ
         let towers = new Array(z)
         for (var i = 0; i < z; i++) {
             towers[i] = new Array(x)
         }
-        let tower0, tower1, tower2
-        // tower1Attack
+        // tower1Attack(還沒確定是否可刪)
         let lineTower1
         let is_tower1Attack = new Array(z)
         for (var i = 0; i < z; i++) {
@@ -175,11 +234,10 @@
         for (var i = 0; i < z; i++) {
             geometry1[i] = new Array(x)
         }
-
+        
         function init() {
             // 建立場景
             scene = new THREE.Scene()
-
 
             // 建立渲染器
             renderer = new THREE.WebGLRenderer({
@@ -187,7 +245,7 @@
                 antialias: true
             })
             renderer.setSize(window.innerWidth, window.innerHeight) // 場景大小
-            renderer.setClearColor(0xeeeeee, 1.0) // 預設背景顏色
+            renderer.setClearColor(0x666666, 1.0) // 預設背景顏色
             renderer.shadowMap.enabled = true // 陰影效果
             renderer.shadowMap.type = THREE.PCFSoftShadowMap
             // 將渲染器的 DOM 綁到網頁上
@@ -256,7 +314,6 @@
                 }
                 position_z += 1
             }
-
         }
 
         // mouseHover
@@ -274,41 +331,39 @@
 
         // 讓敵人沿著路走
         function animateEnemy() {
-
-            for (var i = 0; i < enemyNum; i++) {
-                if (enemy[i].is_animation) {
-                    //console.log(enemy[i])
-                    if ((-5.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -4.8) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3) ||
-                        (-1.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -0.8) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3) ||
-                        (2.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 3.2) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3)) {
-                        enemy[i].y += enemySpeed
-                        enemy[i].obj.position.z += enemySpeed
-                    }
-                    else if ((-5.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -3) && (2.8 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
-                        (-3.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -1) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= -1.8) ||
-                        (-1.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 1) && (2.8 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
-                        (0.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 3) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= -1.8) ||
-                        (2.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 5) && (2.8 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
-                        (4.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 6) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= -1.8)) {
-                        enemy[i].x += enemySpeed
-                        enemy[i].obj.position.x += enemySpeed
-                    }
-                    else if ((-3.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -2.8) && (-2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
-                        (0.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 1.2) && (-2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
-                        (4.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 5.2) && (-2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2)) {
-                        enemy[i].y -= enemySpeed
-                        enemy[i].obj.position.z -= enemySpeed
+            if(game.get_health() >= 0) {
+                for (var i = 0; i < enemyNum; i++) {
+                    if (enemy[i].is_animation) {
+                        if ((-5.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -4.8) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3) ||
+                            (-1.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -0.8) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3) ||
+                            (2.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 3.2) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3)) {
+                            enemy[i].y += enemySpeed
+                            enemy[i].obj.position.z += enemySpeed
+                        }
+                        else if ((-5.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -3) && (2.8 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
+                            (-3.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -1) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= -1.8) ||
+                            (-1.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 1) && (2.8 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
+                            (0.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 3) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= -1.8) ||
+                            (2.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 5) && (2.8 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
+                            (4.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 6) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= -1.8)) {
+                            enemy[i].x += enemySpeed
+                            enemy[i].obj.position.x += enemySpeed
+                        }
+                        else if ((-3.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -2.8) && (-2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
+                            (0.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 1.2) && (-2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2) ||
+                            (4.8 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= 5.2) && (-2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3.2)) {
+                            enemy[i].y -= enemySpeed
+                            enemy[i].obj.position.z -= enemySpeed
+                        }
                     }
                 }
             }
-
             let removed = game.lost_health()
             score = game.score
             money = game.money
             health = game.get_health()
             level = game.level
             show_msg(level, score, money, health)
-            //console.log(removed)
             if (removed.length > 0) {
                 now_enemy -= removed.length
                 for (let i = 0; i < removed.length; i++) {
@@ -318,9 +373,6 @@
             enemy = game.get_enemies()
             enemyNum = enemy.length
             game.set_enemies(enemy);
-
-            //console.log(game.enemies)
-
         }
         
         // enemyMove when startBtnClicked
@@ -328,46 +380,36 @@
             if (now_enemy >= enemyNum) {
                 return
             }
-            console.log("enemyMove is called" + now_enemy)
-            //console.log(JSON.stringify(is_start))
             // 建立敵人
-
-
             if (!enemy[now_enemy].is_start) {
                 geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
                 material = new THREE.MeshPhysicalMaterial({
                     color: 0xaaaa22
                 })
-                //console.log(enemy)
-                //console.log(now_enemy)
                 enemy[now_enemy].obj = new THREE.Mesh(geometry, material)
                 enemy[now_enemy].obj.position.set(-5, 0.75, -2)
                 enemy[now_enemy].obj.castShadow = true
                 enemy[now_enemy].obj.receiveShadow = true
-
                 enemy[now_enemy].visible = true
                 enemy[now_enemy].is_start = true
                 enemy[now_enemy].is_animation = true
-                //console.log("!!!!!!!!! " + now_enemy + " is added in scene")
-
-
                 scene.add(enemy[now_enemy].obj)
-                // TODO: 間隔產生
                 now_enemy += 1;
-
-
-            }
-            
-
-        }
-
-        // enemyStop when pauseBtnClicked
-        function enemyStop() {
-            for (var i = 0; i < enemyNum; i++) {
-                is_animation[i] = false
             }
         }
 
+        // 升級範圍
+        function upgradeRangeFunction() {
+            console.log("升級範圍")
+            game.upgrade_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "range")
+        }
+
+        // 升級攻擊力
+        function upgradePowerFunction() {
+            console.log("升級攻擊力")
+            game.upgrade_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "power")
+        }
+        
         // 偵測Object是否被點擊
         function OnObjectClicked(event) {
             event.preventDefault();
@@ -376,131 +418,49 @@
             // calculate objects intersecting the picking ray
             const intersects = raycaster.intersectObjects(scene.children)
             for (let k = 0; k < intersects.length; k++) {
-                // index是為了存放塔在towers[towerIndexZ][towerIndexX]中
-                let towerIndexZ, towerIndexX
-                // 如果點擊的是草地
-                if (intersects[k].object.material[2] == grassHighlightMaterial) {
-                    // TODO: 避免重複蓋塔
-
-                    // 在地板周圍跳出3個防禦塔選項
-                    geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
-                    // tower0
-                    towerMaterial0 = new THREE.MeshPhysicalMaterial({
-                        color: 0xaa2222
-                    })
-                    tower0 = new THREE.Mesh(geometry, towerMaterial0)
-                    tower0.position.set(intersects[k].object.position.x - 1, intersects[k].object.position.y + 1, intersects[k].object.position.z + 1)
-                    tower0.castShadow = true
-                    tower0.receiveShadow = true
-                    scene.add(tower0)
-                    // tower1
-                    towerMaterial1 = new THREE.MeshPhysicalMaterial({
-                        color: 0x22aa22
-                    })
-                    tower1 = new THREE.Mesh(geometry, towerMaterial1)
-                    tower1.position.set(intersects[k].object.position.x + 1, intersects[k].object.position.y + 1, intersects[k].object.position.z + 1)
-                    tower1.castShadow = true
-                    tower1.receiveShadow = true
-                    scene.add(tower1)
-                    // tower2
-                    towerMaterial2 = new THREE.MeshPhysicalMaterial({
-                        color: 0x2222aa
-                    })
-                    tower2 = new THREE.Mesh(geometry, towerMaterial2)
-                    tower2.position.set(intersects[k].object.position.x, intersects[k].object.position.y + 1, intersects[k].object.position.z - 1)
-                    tower2.castShadow = true
-                    tower2.receiveShadow = true
-                    scene.add(tower2)
+                nowCreateTowerPositionX = intersects[k].object.position.x
+                nowCreateTowerPositionY = intersects[k].object.position.y + 1
+                nowCreateTowerPositionZ = intersects[k].object.position.z
+                // 如果點擊的是草地代表要蓋塔
+                if (intersects[0].object.material[2] == grassHighlightMaterial) {
+                    // 在螢幕左下角跳出3個防禦塔選項
+                    document.getElementById("towerBtns").style.display = 'block';
                 }
-                // 如果點擊是tower0~tower2
-                else if (intersects[k].object == tower0 || intersects[k].object == tower1 || intersects[k].object == tower2) {
-                    // TODO: hover到防禦塔可以highlight
-
-                    // click防禦塔後在object上方蓋塔, 並將周圍3個防禦塔消失
-                    if (intersects[k].object == tower0) {
-
-
-                        scene.remove(tower1, tower2)
-                        tower0.position.x += 1
-                        tower0.position.z -= 1
-                        console.log("tower0 position (z, x) = ", tower0.position.z, tower0.position.x)
-                        towerIndexZ = tower0.position.z + 2
-                        towerIndexX = tower0.position.x + 5
-                        towers[towerIndexZ][towerIndexX] = tower0
-                        console.log("tower0 index (z, x) = ", towerIndexZ, towerIndexX)
-                        game.buy_tower(towerIndexZ, towerIndexX, "range")
-
-
-                    }
-                    else if (intersects[k].object == tower1) {
-
-                        scene.remove(tower0, tower2)
-                        tower1.position.x -= 1
-                        tower1.position.z -= 1
-                        console.log("tower1 position (z, x) = ", tower1.position.z, tower1.position.x)
-                        towerIndexZ = tower1.position.z + 2
-                        towerIndexX = tower1.position.x + 5
-                        towers[towerIndexZ][towerIndexX] = tower1
-                        console.log("tower1 index (z, x) = ", towerIndexZ, towerIndexX)
-                        game.buy_tower(towerIndexZ, towerIndexX, "sniper")
-                    }
-                    else if (intersects[k].object == tower2) {
-                        game.buy_tower(intersects[k].object.position.z + 2, intersects[k].object.position.x + 5, "range")
-
-
-                        scene.remove(tower0, tower1)
-                        tower2.position.z += 1
-                        console.log("tower2 position (z, x) = ", tower2.position.z, tower2.position.x)
-                        towerIndexZ = tower2.position.z + 2
-                        towerIndexX = tower2.position.x + 5
-                        towers[towerIndexZ][towerIndexX] = tower2
-                        console.log("tower2 index (z, x) = ", towerIndexZ, towerIndexX)
-                        game.buy_tower(towerIndexZ, towerIndexX, "normal")
+                for(let i = 0; i < z; i++) {
+                    for(let j = 0; j < x; j++) {
+                        // 如果點擊是防禦塔代表要升級塔
+                        if(intersects[k].object == towers[i][j]) {
+                            document.getElementById("upgradeTowerBtns").style.display = 'block';
+                        }
                     }
                 }
-                // TODO: 沒有選取塔要恢復原狀
-
             }
-            //console.log(JSON.stringify(game));
         }
-
         
         let is_start_click = false
         function render() {
-           
-
-
             animateEnemy()
-            //console.log(JSON.stringify(is_start))
             if (new Date() - time > 900 && is_start_click) {
                 console.log("1sec")
                 time = new Date();
                 enemyMove()
-
                 let removed = game.all_tower_attack()
                 score = game.score
                 money = game.money
                 health = game.get_health()
                 level = game.level
                 show_msg(level, score, money, health)
-
-
-
-                //console.log(removed)
                 if (removed.length > 0) {
                     for (let i = 0; i < removed.length; i++) {
                         scene.remove(removed[i].obj)
                     }
                 }
-
-
                 enemy = game.get_enemies();
                 if (enemyNum < enemy.length) {
                     //new enemy is created
                     now_enemy = 0
                 }
                 enemyNum = enemy.length
-
             }
             // update the picking ray with the camera and mouse position
             raycaster.setFromCamera(mouse, camera)
@@ -539,37 +499,106 @@
         window.addEventListener('mousemove', onMouseMove, false);
         window.addEventListener('click', OnObjectClicked, false);
     </script>
+    <!-- button的部分 -->
     <script>
-        //button的部分
-        let startBtn = document.getElementById("startBtn");
-        startBtn.addEventListener("click", startBtnClicked, false);
-        let pauseBtn = document.getElementById("pauseBtn");
-        pauseBtn.addEventListener("click", pauseBtnClicked, false);
-        let exitBtn = document.getElementById("exitBtn");
-        exitBtn.addEventListener("click", exitBtnClicked, false);
-
+        function start() {
+            // startBtn
+            let startBtn = document.getElementById("startBtn");
+            startBtn.addEventListener("click", startBtnClicked, false);
+            // 選擇塔Btn
+            let tower0Btn = document.getElementById("tower0Btn");
+            let tower1Btn = document.getElementById("tower1Btn");
+            let tower2Btn = document.getElementById("tower2Btn");
+            tower0Btn.addEventListener("click", tower0BtnClicked, false);
+            tower1Btn.addEventListener("click", tower1BtnClicked, false);
+            tower2Btn.addEventListener("click", tower2BtnClicked, false);
+            // 升級塔Btn
+            let upgradeRange = document.getElementById("upgradeRange");
+            let upgradePower = document.getElementById("upgradePower");
+            upgradeRange.addEventListener("click", upgradeRangeClicked, false)
+            upgradePower.addEventListener("click", upgradePowerClicked, false)
+        }
+        
         // startBtnClicked
         function startBtnClicked() {
             bgm = document.getElementById("bgm")
             bgm.loop = true
             bgm.play()
-            console.log("startBtn clicked")
             is_start_click = true
             time = new Date()
             enemyMove()
+            document.getElementById("startBtn").style.display = 'none';
         }
 
-        // pauseBtnClicked
-        function pauseBtnClicked() {
-            console.log("pauseBtn clicked")
-            enemyStop()
+        // upgradeRangeClicked
+        function upgradeRangeClicked() {
+            document.getElementById("upgradeTowerBtns").style.display = 'none';
+            upgradeRangeFunction();
         }
 
-        // exitBtnClicked
-        function exitBtnClicked() {
-            console.log("exitBtn clicked")
+        // upgradePowerClicked
+        function upgradePowerClicked() {
+            document.getElementById("upgradeTowerBtns").style.display = 'none';
+            upgradePowerFunction();
         }
+        
+        // tower0BtnClicked
+        function tower0BtnClicked() {
+            console.log("create 紅色範圍塔");
+            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            // tower0
+            towerMaterial0 = new THREE.MeshPhysicalMaterial({
+                color: 0xaa2222
+            })
+            tower0 = new THREE.Mesh(geometry, towerMaterial0)
+            tower0.position.set(nowCreateTowerPositionX, nowCreateTowerPositionY, nowCreateTowerPositionZ)
+            // 可以產生影子
+            tower0.castShadow = true
+            // 可以接受影子
+            tower0.receiveShadow = true
+            scene.add(tower0)
+            towers[nowCreateTowerPositionZ+2][nowCreateTowerPositionX+5] = tower0
+            game.buy_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "range")
+            document.getElementById("towerBtns").style.display = 'none';
+        }
+
+        // tower1BtnClicked
+        function tower1BtnClicked() {
+            console.log("create 綠色狙擊塔");
+            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            // tower1
+            towerMaterial1 = new THREE.MeshPhysicalMaterial({
+                color: 0x22aa22
+            })
+            tower1 = new THREE.Mesh(geometry, towerMaterial1)
+            tower1.position.set(nowCreateTowerPositionX, nowCreateTowerPositionY, nowCreateTowerPositionZ)
+            tower1.castShadow = true
+            tower1.receiveShadow = true
+            scene.add(tower1)
+            towers[nowCreateTowerPositionZ+2][nowCreateTowerPositionX+5] = tower1
+            game.buy_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "sniper")
+            document.getElementById("towerBtns").style.display = 'none';
+        }
+
+        // tower2BtnClicked
+        function tower2BtnClicked() {
+            console.log("create 藍色一般塔");
+            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            // tower2
+            towerMaterial2 = new THREE.MeshPhysicalMaterial({
+                color: 0x2222aa
+            })
+            tower2 = new THREE.Mesh(geometry, towerMaterial2)
+            tower2.position.set(nowCreateTowerPositionX, nowCreateTowerPositionY, nowCreateTowerPositionZ)
+            tower2.castShadow = true
+            tower2.receiveShadow = true
+            scene.add(tower2)
+            towers[nowCreateTowerPositionZ+2][nowCreateTowerPositionX+5] = tower2
+            game.buy_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "normal")
+            document.getElementById("towerBtns").style.display = 'none';
+        }
+
+        window.addEventListener("load", start, false);
     </script>
 </body>
-
 </html>
