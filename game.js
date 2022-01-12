@@ -145,7 +145,7 @@ class Game {
                     if (this.is_tower(i, j)) {
                         if (this.get_tower(i, j).get_attackable() < 0 || this.get_tower(i, j).get_attackable() > 0) {//check if already attacked
                             this.attack(i, j, this.enemies[index])
-                            console.log("enemy "+index+" is attacked");
+                            //console.log("enemy "+index+" is attacked");
                             //tower of i,j attack one enemy
 
                             this.get_tower(i, j).decrease_attackable()
@@ -218,7 +218,7 @@ class Game {
                 //attack effect can be process here
 
                 enemy.set_health(enemy.get_health() - this.get_tower(i, j).get_power())
-            } 
+            }
         }
     }
 

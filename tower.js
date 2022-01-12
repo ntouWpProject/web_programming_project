@@ -24,6 +24,9 @@ class Tower {
     get_power() {
         return this.power
     }
+    get_type() {
+        return this.type
+    }
 
 
     get_range() {
@@ -53,14 +56,14 @@ class Tower {
     power_up() {
         this.increase_level()
         this.power *= 1.2
-        this.power = parseInt(this.power)
+        this.power = this.power
     }
 
 
     range_up() {
         this.increase_level()
         this.range *= 1.2
-        this.range = parseInt(this.range)
+        this.range = this.range
     }
 
 }
