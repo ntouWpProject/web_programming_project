@@ -449,7 +449,7 @@
             console.log(intersects[0].object)
             let box_intersects = []
             for (let i = 0; i < intersects.length; i++) {
-                if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0) {
+                if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0 && intersects[i].object.material[2] != roadMaterial) {
                     box_intersects.push(intersects[i])
                 }
             }
