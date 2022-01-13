@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>WP_project</title>
@@ -7,28 +8,32 @@
         body {
             margin: 0;
         }
+
         #upgradeTowerBtns {
             position: absolute;
             bottom: 20px;
             left: 625px;
         }
+
         #towerBtns {
             position: absolute;
             bottom: 20px;
             left: 550px;
         }
+
         #startBtn {
             position: absolute;
             bottom: 20px;
             left: 725px;
         }
+
         button {
-            font-weight:bold;
+            font-weight: bold;
             margin: 3px;
             font-family: monospace;
             font-size: 24px;
             cursor: pointer;
-            text-align: center;   
+            text-align: center;
             text-decoration: none;
             outline: none;
             color: #fff;
@@ -37,29 +42,34 @@
             border-radius: 15px;
             box-shadow: 0 5px #999;
             color: #000;
-            text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;
+            text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
         }
+
         button:hover {
             background-color: #3e8e41
         }
+
         button:active {
             background-color: #3e8e41;
             box-shadow: 0 5px #666;
             transform: translateY(10px);
         }
+
         .gameOver {
             font-size: 20px;
         }
-        form { 
-            display: inline; 
+
+        form {
+            display: inline;
         }
+
         .leftTop {
-            font-weight:bold;
-            color: transparent; 
+            font-weight: bold;
+            color: transparent;
             -webkit-background-clip: text;
             -moz-background-clip: text;
             background-clip: text;
-            text-shadow: rgba(255,255,255,0.5) 0px 3px 3px;
+            text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
             font-size: 15px;
             font-family: monospace;
             position: absolute;
@@ -72,10 +82,12 @@
             cursor: pointer;
             text-align: left;
         }
-        .leftTop > p {
+
+        .leftTop>p {
             position: relative;
             z-index: 1;
         }
+
         .leftTop::before {
             content: "";
             display: block;
@@ -89,7 +101,8 @@
             width: 20px;
             height: 20px;
         }
-        .leftTop::after{
+
+        .leftTop::after {
             content: "";
             width: 20px;
             height: 20px;
@@ -102,12 +115,15 @@
             right: 0;
             transition: all .3s linear;
         }
-        .leftTop:hover::before, .leftTop:hover::after{
+
+        .leftTop:hover::before,
+        .leftTop:hover::after {
             width: 100%;
             height: 100%;
         }
     </style>
 </head>
+
 <body>
     <!-- 背景音樂 -->
     <audio preload="auto" id="bgm">
@@ -121,11 +137,13 @@
             <button type="button" id="upgradePower">升級攻擊力</button>
             <button type="button" id="upgradeRange">升級射擊範圍</button>
         </form>
+
         <form action="#" id="towerBtns" style="display: none;">
             <button type="button" id="tower0Btn">紅色範圍塔</button>
             <button type="button" id="tower1Btn">綠色狙擊塔</button>
             <button type="button" id="tower2Btn">藍色普通塔</button>
         </form>
+
         <form action="#">
             <button type="button" id="startBtn">start</button>
         </form>
@@ -143,7 +161,7 @@
         let health = 1000
         function show_msg(level, score, money, health) {
             let message = ""
-            if(health <= 0){
+            if (health <= 0) {
                 is_start_click = false
                 message += '<p><span class="gameOver">game over!!!</span><br>'
                 message += '請重整頁面重新開始遊戲</p>'
@@ -160,6 +178,7 @@
             }
             // 寫入leftTop
             document.getElementById("leftTop").innerHTML = message
+            //console.log(game)
         }
         show_msg(level, score, money, health);
     </script>
@@ -188,7 +207,7 @@
         // 敵人相關參數
         let enemy = game.get_enemies();
         let enemyNum = enemy.length;
-        let enemySpeed = 0.09
+        let enemySpeed = 0.01
         let now_enemy = 0
         // raycast
         const raycaster = new THREE.Raycaster()
@@ -234,7 +253,7 @@
         for (var i = 0; i < z; i++) {
             geometry1[i] = new Array(x)
         }
-        
+
         function init() {
             // 建立場景
             scene = new THREE.Scene()
@@ -331,7 +350,15 @@
 
         // 讓敵人沿著路走
         function animateEnemy() {
-            if(game.get_health() >= 0) {
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 12; j++) {
+                    if (towers[i][j] != undefined) {
+                        towers[i][j].rotation.x += 0.01
+                        towers[i][j].rotation.y += 0.01
+                    }
+                }
+            }
+            if (game.get_health() >= 0) {
                 for (var i = 0; i < enemyNum; i++) {
                     if (enemy[i].is_animation) {
                         if ((-5.2 <= enemy[i].obj.position.x && enemy[i].obj.position.x <= -4.8) && (-2.2 <= enemy[i].obj.position.z && enemy[i].obj.position.z <= 3) ||
@@ -374,7 +401,7 @@
             enemyNum = enemy.length
             game.set_enemies(enemy);
         }
-        
+
         // enemyMove when startBtnClicked
         function enemyMove() {
             if (now_enemy >= enemyNum) {
@@ -382,7 +409,7 @@
             }
             // 建立敵人
             if (!enemy[now_enemy].is_start) {
-                geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+                geometry = new THREE.SphereGeometry(0.3, 0.3, 0.3)
                 material = new THREE.MeshPhysicalMaterial({
                     color: 0xaaaa22
                 })
@@ -401,42 +428,47 @@
         // 升級範圍
         function upgradeRangeFunction() {
             console.log("升級範圍")
-            game.upgrade_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "range")
+            game.upgrade_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5, "range")
+
         }
 
         // 升級攻擊力
         function upgradePowerFunction() {
             console.log("升級攻擊力")
-            game.upgrade_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "power")
+            game.upgrade_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5, "power")
         }
-        
+
         // 偵測Object是否被點擊
         function OnObjectClicked(event) {
             event.preventDefault();
             // update the picking ray with the camera and mouse position
             raycaster.setFromCamera(mouse, camera)
             // calculate objects intersecting the picking ray
-            const intersects = raycaster.intersectObjects(scene.children)
-            for (let k = 0; k < intersects.length; k++) {
-                nowCreateTowerPositionX = intersects[k].object.position.x
-                nowCreateTowerPositionY = intersects[k].object.position.y + 1
-                nowCreateTowerPositionZ = intersects[k].object.position.z
-                // 如果點擊的是草地代表要蓋塔
-                if (intersects[0].object.material[2] == grassHighlightMaterial) {
-                    // 在螢幕左下角跳出3個防禦塔選項
-                    document.getElementById("towerBtns").style.display = 'block';
-                }
-                for(let i = 0; i < z; i++) {
-                    for(let j = 0; j < x; j++) {
-                        // 如果點擊是防禦塔代表要升級塔
-                        if(intersects[k].object == towers[i][j]) {
-                            document.getElementById("upgradeTowerBtns").style.display = 'block';
-                        }
-                    }
+            let intersects = raycaster.intersectObjects(scene.children, false)
+
+            console.log(intersects[0].object)
+            let box_intersects = []
+            for (let i = 0; i < intersects.length; i++) {
+                if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0) {
+                    box_intersects.push(intersects[i])
                 }
             }
+
+            if (box_intersects[0].object.position.y == 0) {
+                nowCreateTowerPositionX = box_intersects[0].object.position.x
+                nowCreateTowerPositionY = box_intersects[0].object.position.y + 1
+                nowCreateTowerPositionZ = box_intersects[0].object.position.z
+                // 如果點擊的是草地代表要蓋塔
+                if (game.is_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5)) {
+                    document.getElementById("upgradeTowerBtns").style.display = 'block';
+                } else {
+                    document.getElementById("towerBtns").style.display = 'block';
+                }
+            }
+
+
         }
-        
+
         let is_start_click = false
         function render() {
             animateEnemy()
@@ -454,11 +486,13 @@
                     for (let i = 0; i < removed.length; i++) {
                         scene.remove(removed[i].obj)
                     }
+                    now_enemy -= removed.length
                 }
                 enemy = game.get_enemies();
                 if (enemyNum < enemy.length) {
                     //new enemy is created
                     now_enemy = 0
+                    enemyMove()
                 }
                 enemyNum = enemy.length
             }
@@ -466,20 +500,20 @@
             raycaster.setFromCamera(mouse, camera)
             // calculate objects intersecting the picking ray
             const intersects = raycaster.intersectObjects(scene.children)
-            for (var i = 0; i < intersects.length; i++) {
+            if (intersects.length > 0) {
                 for (var j = 0; j < z; j++) {
                     for (var k = 0; k < x; k++) {
                         // 判斷哪個cube被hover
-                        if (intersects[i].object == cube[j][k]) {
+                        if (intersects[0].object == cube[j][k]) {
                             is_cubeHighlight[j][k] = true
                         }
                         else {
                             is_cubeHighlight[j][k] = false
                         }
                         // 把hover的換texture, 沒有hover的換回原本的texture
-                        if (is_cubeHighlight[j][k] && intersects[i].object.position.y == 0) {
-                            if (intersects[i].object.material[2] == grassMaterial) {
-                                intersects[i].object.material[2] = grassHighlightMaterial
+                        if (is_cubeHighlight[j][k] && intersects[0].object.position.y == 0) {
+                            if (intersects[0].object.material[2] == grassMaterial) {
+                                intersects[0].object.material[2] = grassHighlightMaterial
                             }
                         }
                         else {
@@ -518,7 +552,7 @@
             upgradeRange.addEventListener("click", upgradeRangeClicked, false)
             upgradePower.addEventListener("click", upgradePowerClicked, false)
         }
-        
+
         // startBtnClicked
         function startBtnClicked() {
             bgm = document.getElementById("bgm")
@@ -534,18 +568,28 @@
         function upgradeRangeClicked() {
             document.getElementById("upgradeTowerBtns").style.display = 'none';
             upgradeRangeFunction();
+            score = game.score
+            money = game.money
+            health = game.get_health()
+            level = game.level
+            show_msg(level, score, money, health)
         }
 
         // upgradePowerClicked
         function upgradePowerClicked() {
             document.getElementById("upgradeTowerBtns").style.display = 'none';
             upgradePowerFunction();
+            score = game.score
+            money = game.money
+            health = game.get_health()
+            level = game.level
+            show_msg(level, score, money, health)
         }
-        
+
         // tower0BtnClicked
         function tower0BtnClicked() {
             console.log("create 紅色範圍塔");
-            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower0
             towerMaterial0 = new THREE.MeshPhysicalMaterial({
                 color: 0xaa2222
@@ -557,15 +601,20 @@
             // 可以接受影子
             tower0.receiveShadow = true
             scene.add(tower0)
-            towers[nowCreateTowerPositionZ+2][nowCreateTowerPositionX+5] = tower0
-            game.buy_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "range")
+            towers[nowCreateTowerPositionZ + 2][nowCreateTowerPositionX + 5] = tower0
+            game.buy_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5, "range")
+            score = game.score
+            money = game.money
+            health = game.get_health()
+            level = game.level
+            show_msg(level, score, money, health)
             document.getElementById("towerBtns").style.display = 'none';
         }
 
         // tower1BtnClicked
         function tower1BtnClicked() {
             console.log("create 綠色狙擊塔");
-            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower1
             towerMaterial1 = new THREE.MeshPhysicalMaterial({
                 color: 0x22aa22
@@ -575,15 +624,22 @@
             tower1.castShadow = true
             tower1.receiveShadow = true
             scene.add(tower1)
-            towers[nowCreateTowerPositionZ+2][nowCreateTowerPositionX+5] = tower1
-            game.buy_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "sniper")
+            towers[nowCreateTowerPositionZ + 2][nowCreateTowerPositionX + 5] = tower1
+            game.buy_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5, "sniper")
+            score = game.score
+            money = game.money
+            health = game.get_health()
+            level = game.level
+            show_msg(level, score, money, health)
+
+
             document.getElementById("towerBtns").style.display = 'none';
         }
 
         // tower2BtnClicked
         function tower2BtnClicked() {
             console.log("create 藍色一般塔");
-            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower2
             towerMaterial2 = new THREE.MeshPhysicalMaterial({
                 color: 0x2222aa
@@ -593,12 +649,25 @@
             tower2.castShadow = true
             tower2.receiveShadow = true
             scene.add(tower2)
-            towers[nowCreateTowerPositionZ+2][nowCreateTowerPositionX+5] = tower2
-            game.buy_tower(nowCreateTowerPositionZ+2, nowCreateTowerPositionX+5, "normal")
+            towers[nowCreateTowerPositionZ + 2][nowCreateTowerPositionX + 5] = tower2
+            game.buy_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5, "normal")
+            score = game.score
+            money = game.money
+            health = game.get_health()
+            level = game.level
+            show_msg(level, score, money, health)
             document.getElementById("towerBtns").style.display = 'none';
         }
+
+        //game.get_tower(i,j).get_level()
+        //game.get_tower(i,j).get_range()
+        //game.get_tower(i,j).get_power()
+        //game.get_tower(i,j).get_type()
+
+
 
         window.addEventListener("load", start, false);
     </script>
 </body>
+
 </html>
