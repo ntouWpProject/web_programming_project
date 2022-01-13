@@ -350,6 +350,14 @@
 
         // 讓敵人沿著路走
         function animateEnemy() {
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 12; j++) {
+                    if (towers[i][j] != undefined) {
+                        towers[i][j].rotation.x += 0.01
+                        towers[i][j].rotation.y += 0.01
+                    }
+                }
+            }
             if (game.get_health() >= 0) {
                 for (var i = 0; i < enemyNum; i++) {
                     if (enemy[i].is_animation) {
@@ -401,7 +409,7 @@
             }
             // 建立敵人
             if (!enemy[now_enemy].is_start) {
-                geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
+                geometry = new THREE.SphereGeometry(0.3, 0.3, 0.3)
                 material = new THREE.MeshPhysicalMaterial({
                     color: 0xaaaa22
                 })
@@ -441,7 +449,7 @@
             console.log(intersects[0].object)
             let box_intersects = []
             for (let i = 0; i < intersects.length; i++) {
-                if (intersects[i].object.geometry.type == "BoxGeometry") {
+                if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0) {
                     box_intersects.push(intersects[i])
                 }
             }
@@ -478,11 +486,13 @@
                     for (let i = 0; i < removed.length; i++) {
                         scene.remove(removed[i].obj)
                     }
+                    now_enemy -= removed.length
                 }
                 enemy = game.get_enemies();
                 if (enemyNum < enemy.length) {
                     //new enemy is created
                     now_enemy = 0
+                    enemyMove()
                 }
                 enemyNum = enemy.length
             }
@@ -579,7 +589,7 @@
         // tower0BtnClicked
         function tower0BtnClicked() {
             console.log("create 紅色範圍塔");
-            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower0
             towerMaterial0 = new THREE.MeshPhysicalMaterial({
                 color: 0xaa2222
@@ -604,7 +614,7 @@
         // tower1BtnClicked
         function tower1BtnClicked() {
             console.log("create 綠色狙擊塔");
-            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower1
             towerMaterial1 = new THREE.MeshPhysicalMaterial({
                 color: 0x22aa22
@@ -629,7 +639,7 @@
         // tower2BtnClicked
         function tower2BtnClicked() {
             console.log("create 藍色一般塔");
-            geometry = new THREE.SphereGeometry(0.4, 0.4, 0.4)
+            geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower2
             towerMaterial2 = new THREE.MeshPhysicalMaterial({
                 color: 0x2222aa
