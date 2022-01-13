@@ -89,14 +89,13 @@
             -webkit-background-clip: text;
             -moz-background-clip: text;
             background-clip: text;
-            text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
-            font-size: 15px;
+            font-size: 25px;
             font-family: monospace;
             position: absolute;
             top: 10px;
             left: 20px;
             background-color: transparent;
-            color: #000;
+            color: #FFF;
             display: block;
             transition: all .3s linear;
             cursor: pointer;
@@ -118,13 +117,14 @@
             display: block;
             position: absolute;
             box-sizing: border-box;
-            border-top: 1px solid #000;
-            border-left: 1px solid #000;
+            border-top: 2px solid #FFF;
+            border-left: 2px solid #FFF;
             top: 0;
             left: 3;
             transition: all .3s linear;
             width: 20px;
             height: 20px;
+
         }
 
         .rightTop::before {
@@ -147,8 +147,8 @@
             height: 20px;
             display: block;
             box-sizing: border-box;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
+            border-bottom: 2px solid #FFF;
+            border-right: 2px solid #FFF;
             position: absolute;
             bottom: 0;
             right: 0;
@@ -527,7 +527,7 @@
             let intersects = raycaster.intersectObjects(scene.children, false)
             let box_intersects = []
             for (let i = 0; i < intersects.length; i++) {
-                if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0) {
+                if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0 && intersects[i].object.material[2] != roadMaterial) {
                     box_intersects.push(intersects[i])
                 }
             }
