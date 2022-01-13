@@ -11,19 +11,19 @@
 
         #upgradeTowerBtns {
             position: absolute;
-            bottom: 20px;
+            bottom: 55px;
             left: 625px;
         }
 
         #towerBtns {
             position: absolute;
-            bottom: 20px;
-            left: 550px;
+            bottom: 15px;
+            left: 555px;
         }
 
         #startBtn {
             position: absolute;
-            bottom: 20px;
+            bottom: 95px;
             left: 725px;
         }
 
@@ -63,6 +63,26 @@
             display: inline;
         }
 
+        .rightTop {
+            font-weight: bold;
+            color: transparent;
+            -webkit-background-clip: text;
+            -moz-background-clip: text;
+            background-clip: text;
+            text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
+            font-size: 15px;
+            font-family: monospace;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background-color: transparent;
+            color: #000;
+            display: block;
+            transition: all .3s linear;
+            cursor: pointer;
+            text-align: left;
+        }
+
         .leftTop {
             font-weight: bold;
             color: transparent;
@@ -83,12 +103,31 @@
             text-align: left;
         }
 
-        .leftTop>p {
+        .leftTop > p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .rightTop > p {
             position: relative;
             z-index: 1;
         }
 
         .leftTop::before {
+            content: "";
+            display: block;
+            position: absolute;
+            box-sizing: border-box;
+            border-top: 1px solid #000;
+            border-left: 1px solid #000;
+            top: 0;
+            left: 3;
+            transition: all .3s linear;
+            width: 20px;
+            height: 20px;
+        }
+
+        .rightTop::before {
             content: "";
             display: block;
             position: absolute;
@@ -116,8 +155,28 @@
             transition: all .3s linear;
         }
 
+        .rightTop::after {
+            content: "";
+            width: 20px;
+            height: 20px;
+            display: block;
+            box-sizing: border-box;
+            border-bottom: 1px solid #000;
+            border-right: 1px solid #000;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            transition: all .3s linear;
+        }
+
+        .rightTop:hover::before,
+        .rightTop:hover::after{
+            width: 100%;
+            height: 100%;
+        }
+
         .leftTop:hover::before,
-        .leftTop:hover::after {
+        .leftTop:hover::after{
             width: 100%;
             height: 100%;
         }
@@ -131,19 +190,19 @@
     </audio>
     <!-- 左上角的資訊 -->
     <div class="leftTop" id="leftTop"></div>
+    <!-- 右上角的塔資訊 -->
+    <div class="rightTop" id="rightTop"></div>
     <!-- 左下角的按鈕 -->
     <div class="leftBottom">
         <form action="#" id="upgradeTowerBtns" style="display: none;">
             <button type="button" id="upgradePower">升級攻擊力</button>
             <button type="button" id="upgradeRange">升級射擊範圍</button>
         </form>
-
         <form action="#" id="towerBtns" style="display: none;">
             <button type="button" id="tower0Btn">紅色範圍塔</button>
             <button type="button" id="tower1Btn">綠色狙擊塔</button>
             <button type="button" id="tower2Btn">藍色普通塔</button>
         </form>
-
         <form action="#">
             <button type="button" id="startBtn">start</button>
         </form>
@@ -175,12 +234,26 @@
                 message += '<p>當前金額:  ' + money.toString() + '</p>'
                 // 剩餘血量
                 message += '<p>剩餘血量:  ' + health.toString() + '</p>'
+                // tips
+                message += '<p>tips: <br>敵人血量小於50後會變黑色</p>'
             }
             // 寫入leftTop
             document.getElementById("leftTop").innerHTML = message
-            //console.log(game)
         }
         show_msg(level, score, money, health);
+
+        function show_tower_info(towerLevel, towerRange, towerPower, towerType) {
+            document.getElementById("rightTop").style.display = 'block';
+            let message = ""
+            message += '<p>防禦塔等級: ' + towerLevel.toString() + '</p>'
+            message += '<p>防禦塔範圍: ' + towerRange.toString() + '</p>'
+            message += '<p>塔的攻擊力:  ' + towerPower.toString() + '</p>'
+            message += '<p>防禦塔型式:  ' + towerType.toString() + '</p>'
+            // 寫入rightTop
+            document.getElementById("rightTop").innerHTML = message
+        }
+
+        window.addEventListener('click', OnObjectClicked, false);
     </script>
     <!-- 建模、動畫的部分 -->
     <script>
@@ -358,6 +431,12 @@
                     }
                 }
             }
+            for(let i = 0 ; i < now_enemy; i++) {
+                if(enemy[i].get_health() < 50) {
+                    console.log(enemy[i].obj.material.color.r)
+                    enemy[i].obj.material.color.set(0.6, 0.6, 0.4)
+                }
+            }
             if (game.get_health() >= 0) {
                 for (var i = 0; i < enemyNum; i++) {
                     if (enemy[i].is_animation) {
@@ -411,7 +490,7 @@
             if (!enemy[now_enemy].is_start) {
                 geometry = new THREE.SphereGeometry(0.3, 0.3, 0.3)
                 material = new THREE.MeshPhysicalMaterial({
-                    color: 0xaaaa22
+                    color: 0xbbbb33
                 })
                 enemy[now_enemy].obj = new THREE.Mesh(geometry, material)
                 enemy[now_enemy].obj.position.set(-5, 0.75, -2)
@@ -429,13 +508,14 @@
         function upgradeRangeFunction() {
             console.log("升級範圍")
             game.upgrade_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5, "range")
-
+            document.getElementById("rightTop").style.display = 'none';
         }
 
         // 升級攻擊力
         function upgradePowerFunction() {
             console.log("升級攻擊力")
             game.upgrade_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5, "power")
+            document.getElementById("rightTop").style.display = 'none';
         }
 
         // 偵測Object是否被點擊
@@ -445,15 +525,12 @@
             raycaster.setFromCamera(mouse, camera)
             // calculate objects intersecting the picking ray
             let intersects = raycaster.intersectObjects(scene.children, false)
-
-            console.log(intersects[0].object)
             let box_intersects = []
             for (let i = 0; i < intersects.length; i++) {
                 if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0) {
                     box_intersects.push(intersects[i])
                 }
             }
-
             if (box_intersects[0].object.position.y == 0) {
                 nowCreateTowerPositionX = box_intersects[0].object.position.x
                 nowCreateTowerPositionY = box_intersects[0].object.position.y + 1
@@ -461,12 +538,14 @@
                 // 如果點擊的是草地代表要蓋塔
                 if (game.is_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5)) {
                     document.getElementById("upgradeTowerBtns").style.display = 'block';
+                    show_tower_info(game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5).get_level(), 
+                                    game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5).get_range(), 
+                                    game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5).get_power(), 
+                                    game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5).get_type());
                 } else {
                     document.getElementById("towerBtns").style.display = 'block';
                 }
             }
-
-
         }
 
         let is_start_click = false
@@ -562,6 +641,7 @@
             time = new Date()
             enemyMove()
             document.getElementById("startBtn").style.display = 'none';
+            document.getElementById("rightTop").style.display = 'none';
         }
 
         // upgradeRangeClicked
@@ -631,8 +711,6 @@
             health = game.get_health()
             level = game.level
             show_msg(level, score, money, health)
-
-
             document.getElementById("towerBtns").style.display = 'none';
         }
 
@@ -658,13 +736,6 @@
             show_msg(level, score, money, health)
             document.getElementById("towerBtns").style.display = 'none';
         }
-
-        //game.get_tower(i,j).get_level()
-        //game.get_tower(i,j).get_range()
-        //game.get_tower(i,j).get_power()
-        //game.get_tower(i,j).get_type()
-
-
 
         window.addEventListener("load", start, false);
     </script>
