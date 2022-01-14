@@ -106,6 +106,27 @@
             text-align: left;
         }
 
+        .waveClear {
+            font-weight: bold;
+            color: transparent;
+            -webkit-background-clip: text;
+            -moz-background-clip: text;
+            background-clip: text;
+            text-shadow: rgba(0, 0, 0, 0.5) 0px 3px 3px;
+            font-size: 25px;
+            font-family: monospace;
+            position: absolute;
+            top: 10px;
+            left: 700px;
+            background-color: transparent;
+            color: #fff;
+            display: block;
+            transition: all .3s linear;
+            cursor: pointer;
+            text-align: left;
+            display: none;
+        }
+
         .leftTop>p {
             position: relative;
             z-index: 1;
@@ -211,6 +232,10 @@
             <button type="button" id="startBtn">start</button>
         </form>
     </div>
+    <!-- wave clear訊息顯示 -->
+    <div>
+        <p class="waveClear" id="waveClear">wave clear!</p>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/96/three.min.js"></script>
     <script src="board.js"></script>
     <script src="game.js"></script>
@@ -222,6 +247,7 @@
         let score = 0
         let money = 100
         let health = 1000
+
         function show_msg(level, score, money, health) {
             let message = ""
             if (health <= 0) {
@@ -240,9 +266,9 @@
                 message += '<p>剩餘血量:  ' + health.toString() + '</p>'
                 // tips
                 message += '<p>tips: <br>1.敵人的顏色會隨著血量降低而逐漸變黑<br>'
-                message += '2.普通塔一次攻擊一個敵人，範圍有限<br>';
-                message += '3.範圍塔一次攻擊所有範圍內的敵人，範圍有限<br>';
-                message += '4.狙擊塔一次攻擊一個敵人，範圍無限<br></p>'
+                message += '2.普通塔一次攻擊範圍內一個敵人，範圍有限<br>';
+                message += '3.範圍塔一次攻擊範圍內所有敵人，範圍有限<br>';
+                message += '4.狙擊塔一次攻擊範圍內一個敵人，範圍無限<br></p>';
             }
             // 寫入leftTop
             document.getElementById("leftTop").innerHTML = message
@@ -289,6 +315,7 @@
         let enemyNum = enemy.length;
         let enemySpeed = 0.01
         let now_enemy = 0
+        enemyMap = new THREE.TextureLoader().load('https://i.imgur.com/KUTFCJC.jpg')
         // raycast
         const raycaster = new THREE.Raycaster()
         const mouse = new THREE.Vector2()
@@ -455,11 +482,11 @@
                 let ratio = enemy[i].get_health() / enemy[i].get_max_health()
                 ratio = parseInt(ratio * 255)
                 enemy[i].obj.material.color.set(new THREE.Color("rgb(" + ratio + "," + ratio + "," + ratio + ")"))
-
                 if (enemy[i].get_health() < 50) {
                     console.log(enemy[i].obj.material.color.r)
-                    //enemy[i].obj.material.color.set(0.6, 0.6, 0.4)
                 }
+                enemy[i].obj.rotation.x += 0.01
+                enemy[i].obj.rotation.y += 0.01
             }
             if (game.get_health() >= 0) {
                 for (var i = 0; i < enemyNum; i++) {
@@ -507,6 +534,8 @@
 
         // enemyMove when startBtnClicked
         function enemyMove() {
+            // 等待2秒後關閉"wave clear!"的字樣
+            setTimeout("closeWaveClear()", 3000);
             if (now_enemy >= enemyNum) {
                 return
             }
@@ -514,7 +543,8 @@
             if (!enemy[now_enemy].is_start) {
                 geometry = new THREE.SphereGeometry(0.3, 0.3, 0.3)
                 material = new THREE.MeshPhysicalMaterial({
-                    color: 0xFFFFFF
+                    color: 0xFFFFFF,
+                    map: enemyMap
                 })
                 enemy[now_enemy].obj = new THREE.Mesh(geometry, material)
                 enemy[now_enemy].obj.position.set(-5, 0.75, -2)
@@ -549,15 +579,12 @@
             raycaster.setFromCamera(mouse, camera)
             // calculate objects intersecting the picking ray
             let intersects = raycaster.intersectObjects(scene.children, false)
-
-            console.log(intersects[0].object)
             let box_intersects = []
             for (let i = 0; i < intersects.length; i++) {
                 if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0) {
                     box_intersects.push(intersects[i])
                 }
             }
-
             if (box_intersects[0].object.material[2] == grassMaterial || box_intersects[0].object.material[2] == grassHighlightMaterial) {
                 nowCreateTowerPositionX = box_intersects[0].object.position.x
                 nowCreateTowerPositionY = box_intersects[0].object.position.y + 1
@@ -575,9 +602,13 @@
                 document.getElementById("upgradeTowerBtns").style.display = 'none';
                 document.getElementById("towerBtns").style.display = "none"
             }
-
-
         }
+
+        // close wave clear
+        function closeWaveClear() {
+            document.getElementById("waveClear").style.display = 'none'
+        }
+
         let is_start_click = false
         function render() {
             animateEnemy()
@@ -601,6 +632,7 @@
                 if (enemyNum < enemy.length) {
                     //new enemy is created
                     now_enemy = 0
+                    document.getElementById("waveClear").style.display = 'block'
                     enemyMove()
                 }
                 enemyNum = enemy.length
