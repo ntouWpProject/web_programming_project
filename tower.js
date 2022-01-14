@@ -10,14 +10,17 @@ class Tower {
             this.power = 20
             this.range = 3
             this.attackable = 1
+            this.upgrade_factor = 1.7
         } else if (this.type == "sniper") {
             this.power = 10
             this.range = 300
             this.attackable = 1
+            this.upgrade_factor = 1.5
         } else if (this.type == "range") {
             this.power = 10
             this.range = 3
             this.attackable = -1
+            this.upgrade_factor = 1.3
         }
     }
 
@@ -55,15 +58,13 @@ class Tower {
 
     power_up() {
         this.increase_level()
-        this.power *= 1.2
-        this.power = this.power
+        this.power *= this.upgrade_factor
     }
 
 
     range_up() {
         this.increase_level()
         this.range *= 1.2
-        this.range = this.range
     }
 
 }
