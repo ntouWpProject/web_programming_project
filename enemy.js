@@ -1,6 +1,7 @@
 class Enemy {
     constructor(health = 50, x = 0, y = 0) {
         this.health = health;
+        this.max_health = health
         this.x = x
         this.y = y
         this.visible = false
@@ -14,9 +15,15 @@ class Enemy {
         this.obj.position.set(-5, 0.75, -2)
         this.obj.castShadow = true
         this.obj.receiveShadow = true
-        
+
     }
-    is_visible(){
+
+    get_max_health() {
+        return this.max_health
+    }
+
+
+    is_visible() {
         return this.visible
     }
 
