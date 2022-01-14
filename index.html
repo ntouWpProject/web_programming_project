@@ -5,9 +5,14 @@
     <meta charset="utf-8">
     <title>WP_project</title>
     <style>
+        /*
         body {
             margin: 0;
+            margin: 0;
+            overflow: hidden;
+            background: url("https://i.imgur.com/ZgfolEA.jpg") center no-repeat;
         }
+        */
 
         #upgradeTowerBtns {
             position: absolute;
@@ -69,14 +74,14 @@
             -webkit-background-clip: text;
             -moz-background-clip: text;
             background-clip: text;
-            text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
+            text-shadow: rgba(0, 0, 0, 0.5) 0px 3px 3px;
             font-size: 15px;
             font-family: monospace;
             position: absolute;
             top: 10px;
             right: 20px;
             background-color: transparent;
-            color: #000;
+            color: #fff;
             display: none;
             transition: all .3s linear;
             cursor: pointer;
@@ -89,13 +94,14 @@
             -webkit-background-clip: text;
             -moz-background-clip: text;
             background-clip: text;
-            font-size: 25px;
+            text-shadow: rgba(0, 0, 0, 0.5) 0px 3px 3px;
+            font-size: 15px;
             font-family: monospace;
             position: absolute;
             top: 10px;
             left: 20px;
             background-color: transparent;
-            color: #FFF;
+            color: #fff;
             display: block;
             transition: all .3s linear;
             cursor: pointer;
@@ -117,8 +123,8 @@
             display: block;
             position: absolute;
             box-sizing: border-box;
-            border-top: 2px solid #FFF;
-            border-left: 2px solid #FFF;
+            border-top: 2px solid #fff;
+            border-left: 2px solid #fff;
             top: 0;
             left: 3;
             transition: all .3s linear;
@@ -132,8 +138,8 @@
             display: block;
             position: absolute;
             box-sizing: border-box;
-            border-top: 1px solid #000;
-            border-left: 1px solid #000;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
             top: 0;
             left: 3;
             transition: all .3s linear;
@@ -147,8 +153,8 @@
             height: 20px;
             display: block;
             box-sizing: border-box;
-            border-bottom: 2px solid #FFF;
-            border-right: 2px solid #FFF;
+            border-bottom: 2px solid #fff;
+            border-right: 2px solid #fff;
             position: absolute;
             bottom: 0;
             right: 0;
@@ -161,8 +167,8 @@
             height: 20px;
             display: block;
             box-sizing: border-box;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
+            border-bottom: 1px solid #fff;
+            border-right: 1px solid #fff;
             position: absolute;
             bottom: 0;
             right: 0;
@@ -314,6 +320,18 @@
         for (var i = 0; i < z; i++) {
             towers[i] = new Array(x)
         }
+        redTowerMap = new THREE.TextureLoader().load('https://i.imgur.com/EYnRY64.jpg')
+        redTowerMapMaterial = new THREE.MeshPhongMaterial({
+            map: redTowerMap
+        })
+        greenTowerMap = new THREE.TextureLoader().load('https://i.imgur.com/UhYnk73.jpg')
+        greenTowerMapMaterial = new THREE.MeshPhongMaterial({
+            map: greenTowerMap
+        })
+        blueTowerMap = new THREE.TextureLoader().load('https://i.imgur.com/oshkyRV.jpg')
+        blueTowerMapMaterial = new THREE.MeshPhongMaterial({
+            map: blueTowerMap
+        })
         // tower1Attack(還沒確定是否可刪)
         let lineTower1
         let is_tower1Attack = new Array(z)
@@ -341,6 +359,7 @@
             })
             renderer.setSize(window.innerWidth, window.innerHeight) // 場景大小
             renderer.setClearColor(0x666666, 1.0) // 預設背景顏色
+            renderer.setClearAlpha(0.8); // 顏色透明度
             renderer.shadowMap.enabled = true // 陰影效果
             renderer.shadowMap.type = THREE.PCFSoftShadowMap
             // 將渲染器的 DOM 綁到網頁上
@@ -357,7 +376,7 @@
             scene.add(ambientLight)
 
             // 建立點光源0
-            let pointLight0 = new THREE.PointLight(0xffffff, pointLightIntensity)
+            let pointLight0 = new THREE.PointLight(0x888888, pointLightIntensity)
             pointLight0.position.set(-4, 5, -2)
             pointLight0.castShadow = true
             scene.add(pointLight0)
@@ -367,22 +386,22 @@
             pointLight1.castShadow = true
             scene.add(pointLight1)
             // 建立點光源2
-            let pointLight2 = new THREE.PointLight(0xffffff, pointLightIntensity)
+            let pointLight2 = new THREE.PointLight(0x888888, pointLightIntensity)
             pointLight2.position.set(4, 5, -2)
             pointLight2.castShadow = true
             scene.add(pointLight2)
             // 建立點光源3
-            let pointLight3 = new THREE.PointLight(0xffffff, pointLightIntensity)
+            let pointLight3 = new THREE.PointLight(0xcccccc, pointLightIntensity)
             pointLight3.position.set(-4, 0, 8)
             pointLight3.castShadow = true
             scene.add(pointLight3)
             // 建立點光源4
-            let pointLight4 = new THREE.PointLight(0xffffff, pointLightIntensity)
+            let pointLight4 = new THREE.PointLight(0xcccccc, pointLightIntensity)
             pointLight4.position.set(0, 0, 8)
             pointLight4.castShadow = true
             scene.add(pointLight4)
             // 建立點光源5
-            let pointLight5 = new THREE.PointLight(0xffffff, pointLightIntensity)
+            let pointLight5 = new THREE.PointLight(0xcccccc, pointLightIntensity)
             pointLight5.position.set(4, 0, 8)
             pointLight5.castShadow = true
             scene.add(pointLight5)
@@ -684,10 +703,7 @@
             console.log("create 紅色範圍塔");
             geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower0
-            towerMaterial0 = new THREE.MeshPhysicalMaterial({
-                color: 0xaa2222
-            })
-            tower0 = new THREE.Mesh(geometry, towerMaterial0)
+            tower0 = new THREE.Mesh(geometry, redTowerMapMaterial)
             tower0.position.set(nowCreateTowerPositionX, nowCreateTowerPositionY, nowCreateTowerPositionZ)
             // 可以產生影子
             tower0.castShadow = true
@@ -709,10 +725,7 @@
             console.log("create 綠色狙擊塔");
             geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower1
-            towerMaterial1 = new THREE.MeshPhysicalMaterial({
-                color: 0x22aa22
-            })
-            tower1 = new THREE.Mesh(geometry, towerMaterial1)
+            tower1 = new THREE.Mesh(geometry, greenTowerMapMaterial)
             tower1.position.set(nowCreateTowerPositionX, nowCreateTowerPositionY, nowCreateTowerPositionZ)
             tower1.castShadow = true
             tower1.receiveShadow = true
@@ -732,10 +745,7 @@
             console.log("create 藍色一般塔");
             geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
             // tower2
-            towerMaterial2 = new THREE.MeshPhysicalMaterial({
-                color: 0x2222aa
-            })
-            tower2 = new THREE.Mesh(geometry, towerMaterial2)
+            tower2 = new THREE.Mesh(geometry, blueTowerMapMaterial)
             tower2.position.set(nowCreateTowerPositionX, nowCreateTowerPositionY, nowCreateTowerPositionZ)
             tower2.castShadow = true
             tower2.receiveShadow = true
