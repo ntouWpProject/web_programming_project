@@ -89,26 +89,25 @@
             -webkit-background-clip: text;
             -moz-background-clip: text;
             background-clip: text;
-            text-shadow: rgba(255, 255, 255, 0.5) 0px 3px 3px;
-            font-size: 15px;
+            font-size: 25px;
             font-family: monospace;
             position: absolute;
             top: 10px;
             left: 20px;
             background-color: transparent;
-            color: #000;
+            color: #FFF;
             display: block;
             transition: all .3s linear;
             cursor: pointer;
             text-align: left;
         }
 
-        .leftTop > p {
+        .leftTop>p {
             position: relative;
             z-index: 1;
         }
 
-        .rightTop > p {
+        .rightTop>p {
             position: relative;
             z-index: 1;
         }
@@ -118,13 +117,14 @@
             display: block;
             position: absolute;
             box-sizing: border-box;
-            border-top: 1px solid #000;
-            border-left: 1px solid #000;
+            border-top: 2px solid #FFF;
+            border-left: 2px solid #FFF;
             top: 0;
             left: 3;
             transition: all .3s linear;
             width: 20px;
             height: 20px;
+
         }
 
         .rightTop::before {
@@ -147,8 +147,8 @@
             height: 20px;
             display: block;
             box-sizing: border-box;
-            border-bottom: 1px solid #000;
-            border-right: 1px solid #000;
+            border-bottom: 2px solid #FFF;
+            border-right: 2px solid #FFF;
             position: absolute;
             bottom: 0;
             right: 0;
@@ -170,13 +170,13 @@
         }
 
         .rightTop:hover::before,
-        .rightTop:hover::after{
+        .rightTop:hover::after {
             width: 100%;
             height: 100%;
         }
 
         .leftTop:hover::before,
-        .leftTop:hover::after{
+        .leftTop:hover::after {
             width: 100%;
             height: 100%;
         }
@@ -235,20 +235,23 @@
                 // 剩餘血量
                 message += '<p>剩餘血量:  ' + health.toString() + '</p>'
                 // tips
-                message += '<p>tips: <br>敵人血量小於50後會變黑色</p>'
+                message += '<p>tips: <br>1.敵人的顏色會隨著血量降低而逐漸變黑<br>'
+                message += '2.普通塔一次攻擊一個敵人，範圍有限<br>';
+                message += '3.範圍塔一次攻擊所有範圍內的敵人，範圍有限<br>';
+                message += '4.狙擊塔一次攻擊一個敵人，範圍無限<br></p>'
             }
             // 寫入leftTop
             document.getElementById("leftTop").innerHTML = message
         }
         show_msg(level, score, money, health);
 
-        function show_tower_info(towerLevel, towerRange, towerPower, towerType) {
+        function show_tower_info(tower) {
             document.getElementById("rightTop").style.display = 'block';
             let message = ""
-            message += '<p>防禦塔等級: ' + towerLevel.toString() + '</p>'
-            message += '<p>防禦塔範圍: ' + towerRange.toString() + '</p>'
-            message += '<p>塔的攻擊力:  ' + towerPower.toString() + '</p>'
-            message += '<p>防禦塔型式:  ' + towerType.toString() + '</p>'
+            message += '<p>防禦塔等級: ' + tower.get_level().toString() + '</p>'
+            message += '<p>防禦塔範圍: ' + tower.get_range().toString() + '</p>'
+            message += '<p>塔的攻擊力:  ' + tower.get_power().toString() + '</p>'
+            message += '<p>防禦塔型式:  ' + tower.get_type().toString() + '</p>'
             // 寫入rightTop
             document.getElementById("rightTop").innerHTML = message
         }
@@ -431,10 +434,14 @@
                     }
                 }
             }
-            for(let i = 0 ; i < now_enemy; i++) {
-                if(enemy[i].get_health() < 50) {
+            for (let i = 0; i < now_enemy; i++) {
+                let ratio = enemy[i].get_health() / enemy[i].get_max_health()
+                ratio = parseInt(ratio * 255)
+                enemy[i].obj.material.color.set(new THREE.Color("rgb(" + ratio + "," + ratio + "," + ratio + ")"))
+
+                if (enemy[i].get_health() < 50) {
                     console.log(enemy[i].obj.material.color.r)
-                    enemy[i].obj.material.color.set(0.6, 0.6, 0.4)
+                    //enemy[i].obj.material.color.set(0.6, 0.6, 0.4)
                 }
             }
             if (game.get_health() >= 0) {
@@ -490,7 +497,7 @@
             if (!enemy[now_enemy].is_start) {
                 geometry = new THREE.SphereGeometry(0.3, 0.3, 0.3)
                 material = new THREE.MeshPhysicalMaterial({
-                    color: 0xbbbb33
+                    color: 0xFFFFFF
                 })
                 enemy[now_enemy].obj = new THREE.Mesh(geometry, material)
                 enemy[now_enemy].obj.position.set(-5, 0.75, -2)
@@ -525,29 +532,35 @@
             raycaster.setFromCamera(mouse, camera)
             // calculate objects intersecting the picking ray
             let intersects = raycaster.intersectObjects(scene.children, false)
+
+            console.log(intersects[0].object)
             let box_intersects = []
             for (let i = 0; i < intersects.length; i++) {
                 if (intersects[i].object.geometry.type == "BoxGeometry" && intersects[i].object.position.y == 0) {
                     box_intersects.push(intersects[i])
                 }
             }
-            if (box_intersects[0].object.position.y == 0) {
+
+            if (box_intersects[0].object.material[2] == grassMaterial || box_intersects[0].object.material[2] == grassHighlightMaterial) {
                 nowCreateTowerPositionX = box_intersects[0].object.position.x
                 nowCreateTowerPositionY = box_intersects[0].object.position.y + 1
                 nowCreateTowerPositionZ = box_intersects[0].object.position.z
                 // 如果點擊的是草地代表要蓋塔
                 if (game.is_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5)) {
+                    show_tower_info(game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5))
                     document.getElementById("upgradeTowerBtns").style.display = 'block';
-                    show_tower_info(game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5).get_level(), 
-                                    game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5).get_range(), 
-                                    game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5).get_power(), 
-                                    game.get_tower(nowCreateTowerPositionZ + 2, nowCreateTowerPositionX + 5).get_type());
+                    document.getElementById("towerBtns").style.display = "none"
                 } else {
                     document.getElementById("towerBtns").style.display = 'block';
+                    document.getElementById("upgradeTowerBtns").style.display = 'none';
                 }
+            } else {
+                document.getElementById("upgradeTowerBtns").style.display = 'none';
+                document.getElementById("towerBtns").style.display = "none"
             }
-        }
 
+
+        }
         let is_start_click = false
         function render() {
             animateEnemy()
