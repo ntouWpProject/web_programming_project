@@ -5,14 +5,12 @@
     <meta charset="utf-8">
     <title>WP_project</title>
     <style>
-        /*
         body {
             margin: 0;
             margin: 0;
             overflow: hidden;
             background: url("https://i.imgur.com/ZgfolEA.jpg") center no-repeat;
         }
-        */
 
         #upgradeTowerBtns {
             position: absolute;
@@ -291,6 +289,7 @@
         let enemyNum = enemy.length;
         let enemySpeed = 0.01
         let now_enemy = 0
+        enemyMap = new THREE.TextureLoader().load('https://i.imgur.com/KUTFCJC.jpg')
         // raycast
         const raycaster = new THREE.Raycaster()
         const mouse = new THREE.Vector2()
@@ -516,7 +515,8 @@
             if (!enemy[now_enemy].is_start) {
                 geometry = new THREE.SphereGeometry(0.3, 0.3, 0.3)
                 material = new THREE.MeshPhysicalMaterial({
-                    color: 0xFFFFFF
+                    color: 0xFFFFFF,
+                    map: enemyMap
                 })
                 enemy[now_enemy].obj = new THREE.Mesh(geometry, material)
                 enemy[now_enemy].obj.position.set(-5, 0.75, -2)
