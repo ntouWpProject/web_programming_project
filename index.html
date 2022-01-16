@@ -66,7 +66,27 @@
             display: inline;
         }
 
-        .rightTop {
+        .top {
+            font-weight: bold;
+            color: transparent;
+            -webkit-background-clip: text;
+            -moz-background-clip: text;
+            background-clip: text;
+            text-shadow: rgba(0, 0, 0, 0.5) 0px 3px 3px;
+            font-size: 20px;
+            font-family: monospace;
+            position: absolute;
+            top: 10px;
+            left: 500px;
+            background-color: transparent;
+            color: #fff;
+            display: block;
+            transition: all .3s linear;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .bottomLeft {
             font-weight: bold;
             color: transparent;
             -webkit-background-clip: text;
@@ -74,6 +94,26 @@
             background-clip: text;
             text-shadow: rgba(0, 0, 0, 0.5) 0px 3px 3px;
             font-size: 15px;
+            font-family: monospace;
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            background-color: transparent;
+            color: #fff;
+            display: block;
+            transition: all .3s linear;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .rightTop {
+            font-weight: bold;
+            color: transparent;
+            -webkit-background-clip: text;
+            -moz-background-clip: text;
+            background-clip: text;
+            text-shadow: rgba(0, 0, 0, 0.5) 0px 3px 3px;
+            font-size: 20px;
             font-family: monospace;
             position: absolute;
             top: 10px;
@@ -84,6 +124,7 @@
             transition: all .3s linear;
             cursor: pointer;
             text-align: left;
+            float: left;
         }
 
         .leftTop {
@@ -93,7 +134,7 @@
             -moz-background-clip: text;
             background-clip: text;
             text-shadow: rgba(0, 0, 0, 0.5) 0px 3px 3px;
-            font-size: 15px;
+            font-size: 20px;
             font-family: monospace;
             position: absolute;
             top: 10px;
@@ -104,6 +145,16 @@
             transition: all .3s linear;
             cursor: pointer;
             text-align: left;
+        }
+
+        .bottomLeft>p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .top>p {
+            position: relative;
+            z-index: 1;
         }
 
         .leftTop>p {
@@ -194,6 +245,20 @@
     </audio>
     <!-- 左上角的資訊 -->
     <div class="leftTop" id="leftTop"></div>
+    <div class="top" id="msg">
+        <p></p>
+    </div>
+    <div class="bottomLeft">
+        <p>tips:<br>
+            0.要選塔請按塔底下的方塊<br>
+            1.敵人的顏色會隨著血量降低而逐漸變黑<br>
+            2.普通塔一次攻擊一個敵人，範圍有限<br>
+            3.範圍塔一次攻擊所有範圍內的敵人，範圍有限<br>
+            4.狙擊塔一次攻擊一個敵人，範圍無限<br>
+            5.升級需消耗的金錢為塔的等級*5<br>
+            6.升級攻擊力=該塔的攻擊力*升級系數<br>(普通塔1.7，狙擊塔1.5，範圍塔1.3)<br>
+            7.升級範圍=該塔的範圍*1.2<br>(狙擊塔無限範圍所以升級範圍無效)<br></p>
+    </div>
     <!-- 右上角的塔資訊 -->
     <div class="rightTop" id="rightTop"></div>
     <!-- 左下角的按鈕 -->
@@ -238,11 +303,7 @@
                 message += '<p>當前金額:  ' + money.toString() + '</p>'
                 // 剩餘血量
                 message += '<p>剩餘血量:  ' + health.toString() + '</p>'
-                // tips
-                message += '<p>tips: <br>1.敵人的顏色會隨著血量降低而逐漸變黑<br>'
-                message += '2.普通塔一次攻擊一個敵人，範圍有限<br>';
-                message += '3.範圍塔一次攻擊所有範圍內的敵人，範圍有限<br>';
-                message += '4.狙擊塔一次攻擊一個敵人，範圍無限<br></p>'
+
             }
             // 寫入leftTop
             document.getElementById("leftTop").innerHTML = message
@@ -288,6 +349,7 @@
         let enemy = game.get_enemies();
         let enemyNum = enemy.length;
         let enemySpeed = 0.01
+        let enemyStartSpeed = 1000;
         let now_enemy = 0
         enemyMap = new THREE.TextureLoader().load('https://i.imgur.com/KUTFCJC.jpg')
         // raycast
@@ -580,18 +642,25 @@
 
 
         }
+        let enemyStartTime = new Date();
         let is_start_click = false
         function render() {
             animateEnemy()
-            if (new Date() - time > 900 && is_start_click) {
+            if (new Date() - enemyStartTime > enemyStartSpeed && is_start_click) {
+                enemyStartTime = new Date()
+                enemyMove()
+            }
+            if (new Date() - time > 1000 && is_start_click) {
                 console.log("1sec")
                 time = new Date();
-                enemyMove()
+                //enemyMove()
                 let removed = game.all_tower_attack()
                 score = game.score
                 money = game.money
                 health = game.get_health()
                 level = game.level
+                enemyStartSpeed = 1000 - 10 * level
+                enemySpeed = 0.01 + 0.0001 * level
                 show_msg(level, score, money, health)
                 if (removed.length > 0) {
                     for (let i = 0; i < removed.length; i++) {
@@ -603,7 +672,7 @@
                 if (enemyNum < enemy.length) {
                     //new enemy is created
                     now_enemy = 0
-                    enemyMove()
+                    //enemyMove()
                 }
                 enemyNum = enemy.length
             }

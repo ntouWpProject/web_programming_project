@@ -18,7 +18,7 @@ class Tower {
             this.upgrade_factor = 1.5
         } else if (this.type == "range") {
             this.power = 10
-            this.range = 3
+            this.range = 1.5
             this.attackable = -1
             this.upgrade_factor = 1.3
         }
