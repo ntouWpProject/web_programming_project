@@ -83,7 +83,10 @@ class Game {
             this.money -= 10
             this.board.add_tower(i, j, new Tower(type));
         } else {
-            console.log("Not enough money!")
+            document.getElementById("msg").innerHTML = "<p>Not enough money!</p>";
+            setTimeout(() => {
+                document.getElementById("msg").innerHTML = ""
+            }, 1000)
         }
     }
 

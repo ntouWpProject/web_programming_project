@@ -249,6 +249,9 @@
         <p></p>
     </div>
     <div class="bottomLeft">
+        <p><a href="https://docs.google.com/presentation/d/1cMw5IYgwaopuLA4IHsp6YEZXcZGAP9zpIwWiyvRTyDM/edit?usp=sharing"
+                target="_blank">網站文件</a>
+        </p>
         <p>tips:<br>
             0.要選塔請按塔底下的方塊<br>
             1.敵人的顏色會隨著血量降低而逐漸變黑<br>
@@ -289,21 +292,22 @@
         let health = 1000
         function show_msg(level, score, money, health) {
             let message = ""
+
+
+            // 攻擊波數
+            message += '<p>當前攻擊:  第 ' + level.toString() + ' 波</p>'
+            // score
+            message += '<p>累積分數:  ' + score.toString() + '</p>'
+            // money
+            message += '<p>當前金額:  ' + money.toString() + '</p>'
+            // 剩餘血量
+            message += '<p>剩餘血量:  ' + health.toString() + '</p>'
+
+
             if (health <= 0) {
                 is_start_click = false
                 message += '<p><span class="gameOver">game over!!!</span><br>'
                 message += '請重整頁面重新開始遊戲</p>'
-            }
-            else {
-                // 攻擊波數
-                message += '<p>當前攻擊:  第 ' + level.toString() + ' 波</p>'
-                // score
-                message += '<p>累積分數:  ' + score.toString() + '</p>'
-                // money
-                message += '<p>當前金額:  ' + money.toString() + '</p>'
-                // 剩餘血量
-                message += '<p>剩餘血量:  ' + health.toString() + '</p>'
-
             }
             // 寫入leftTop
             document.getElementById("leftTop").innerHTML = message
